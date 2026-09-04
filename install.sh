@@ -42,6 +42,22 @@ mkdir -p "$HOME_DIR/.config"
 info "Linking ~/.config/nvim"
 link "$DOTFILES_DIR/config/nvim" "$HOME_DIR/.config/nvim"
 
+# --- opencode global config -------------------------------------------------
+# Individual files/subdirs only (never the whole dir: node_modules, skills
+# symlinks, and generated files live in ~/.config/opencode).
+OC_DIR="$HOME_DIR/.config/opencode"
+mkdir -p "$OC_DIR"
+if [[ -f "$DOTFILES_DIR/config/opencode/opencode.jsonc" ]]; then
+  info "Linking opencode.jsonc"
+  link "$DOTFILES_DIR/config/opencode/opencode.jsonc" "$OC_DIR/opencode.jsonc"
+fi
+for d in agent command; do
+  if [[ -d "$DOTFILES_DIR/config/opencode/$d" ]]; then
+    info "Linking ~/.config/opencode/$d"
+    link "$DOTFILES_DIR/config/opencode/$d" "$OC_DIR/$d"
+  fi
+done
+
 # --- bin/ (custom tools) -----------------------------------------------------
 info "Linking ~/bin → $DOTFILES_DIR/bin"
 mkdir -p "$HOME_DIR/bin"
