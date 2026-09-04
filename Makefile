@@ -1,4 +1,4 @@
-.PHONY: install update lint help
+.PHONY: install update deps lint help
 
 DOTFILES := $(shell pwd)
 
@@ -7,6 +7,9 @@ help: ## Show this help
 
 install: ## Create symlinks and install dotfiles
 	bash $(DOTFILES)/install.sh
+
+deps: ## Install dependencies via Homebrew bundle (Brewfile)
+	brew bundle --file=$(DOTFILES)/Brewfile
 
 update: ## Pull latest changes and re-link
 	git pull --rebase
