@@ -1,0 +1,15 @@
+# Machine-local overrides (never commit these)
+*.local
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc

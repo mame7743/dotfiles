@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor temporaries
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+
+# Secrets / local config
+*.local
+.env
+.env.*
+
+# Claude
+**/.claude/settings.local.json

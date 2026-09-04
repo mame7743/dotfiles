@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Delete local branches that have been merged into main/master
+set -euo pipefail
+
+DEFAULT=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||' || echo "main")
+
+git fetch --prune
+git branch --merged "$DEFAULT" \
+  | grep -v "^\*" \
+  | grep -v "^\s*$DEFAULT$" \
+  | xargs -r git branch -d
+
+echo "Cleaned up merged branches."
