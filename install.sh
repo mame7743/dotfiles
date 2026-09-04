@@ -51,6 +51,10 @@ if [[ -f "$DOTFILES_DIR/config/opencode/opencode.jsonc" ]]; then
   info "Linking opencode.jsonc"
   link "$DOTFILES_DIR/config/opencode/opencode.jsonc" "$OC_DIR/opencode.jsonc"
 fi
+if [[ -f "$DOTFILES_DIR/config/opencode/AGENTS.md" ]]; then
+  info "Linking ~/.config/opencode/AGENTS.md"
+  link "$DOTFILES_DIR/config/opencode/AGENTS.md" "$OC_DIR/AGENTS.md"
+fi
 for d in agent command; do
   if [[ -d "$DOTFILES_DIR/config/opencode/$d" ]]; then
     info "Linking ~/.config/opencode/$d"

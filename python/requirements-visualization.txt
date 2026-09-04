@@ -1,0 +1,8 @@
+# PyVista 系ライブラリ — install-deps.sh が uv で ~/.local/venvs/visualization に導入
+# 追加・削除はこのファイルを編集するだけ
+
+pyvista
+pyvistaqt
+vtk
+numpy
+scipy

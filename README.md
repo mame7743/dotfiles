@@ -48,9 +48,13 @@ WSLはLinux側のHOME（`$HOME`）へ展開されます。Windows側（PowerShel
 - `install.sh` — 各ファイルのsymlink作成（`.zshrc`, `.gitconfig`, nvim, bin, LLM skills など）
 - `install-deps.sh` / `install-deps.ps1` — OS自動検出で依存インストール（brew / apt / winget）
 - `bootstrap.sh` — 上記を1コマンドで実行するエントリポイント
-- `skills/` — LLMスキル（opencode / Claude Code / Codex へ自動展開）
-- `config/opencode/` — opencodeのサブエージェント・コマンド
-- `templates/` — プロジェクト雛形（`.envrc`, memory-bank など）
+- `Brewfile` — macOS依存ソフトウェア一覧（カテゴリ別）
+- `vscode-extensions.txt` — VS Code拡張機能一覧（`install-deps.sh` が自動導入）
+- `python/requirements-visualization.txt` — PyVista系ライブラリ（uvで`~/.local/venvs/visualization`へ導入）
+- `skills/` — LLMスキル（opencode / Claude Code / Codex へ自動展開）。`memory-bank` に加え、Anthropic公式スキル（`docx` / `xlsx` / `pdf` / `skill-creator` / `frontend-design` / `mcp-builder`）を同梱
+- `config/opencode/` — opencode のサブエージェント・コマンド・オーケストレーション手順（`AGENTS.md` = マルチAgent構成のメインAgent）
+- `docs/multi-agent-design.md` — マルチAgent構成の設計書（ルーター / パネル＋ジャッジ / 共有メッセージボックスのハイブリッド）
+- `templates/` — プロジェクト雛形（`.envrc`, memory-bank, `task.json` など）
 
 ## 利用手順
 

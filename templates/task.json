@@ -1,0 +1,24 @@
+{
+  "task_id": "T-YYYYMMDD-NNN",
+  "objective": "",
+  "pattern": "router",
+  "assignee": [],
+  "status": "pending",
+  "dependencies": [],
+  "input_contract": {
+    "paths": [],
+    "refs": [],
+    "context": ""
+  },
+  "output_contract": {
+    "files": [],
+    "format": "",
+    "schema": ""
+  },
+  "acceptance_criteria": [],
+  "decisions": [],
+  "unresolved_questions": [],
+  "changed_files": [],
+  "verification_results": [],
+  "artifact_locations": []
+}

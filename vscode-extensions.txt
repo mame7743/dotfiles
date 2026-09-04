@@ -1,0 +1,23 @@
+# VS Code 拡張機能一覧 — install-deps.sh が `code --install-extension` で導入
+# 追加・削除はこのファイルに追記するだけ（1行1拡張ID）
+
+# Python
+ms-python.python
+charliermarsh.ruff
+ms-pyright.pyright
+
+# Go
+golang.go
+
+# C/C++
+ms-vscode.cpptools
+
+# Docker
+ms-azuretools.vscode-docker
+
+# 文書・レポート
+quarto.quarto
+tinymist.vscode-typst
+
+# 共通
+redhat.vscode-yaml

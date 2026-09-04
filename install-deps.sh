@@ -8,6 +8,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCAL_BIN="$HOME/.local/bin"
 LOCAL_SHARE="$HOME/.local/share"
+VIZ_VENV="$HOME/.local/venvs/visualization"
 
 info()    { printf '\033[0;34m[info]\033[0m  %s\n' "$*"; }
 success() { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
@@ -31,7 +32,6 @@ if [[ "$OS" == macos ]]; then
   info "macOS detected — installing via Homebrew bundle"
   brew bundle --file="$DOTFILES_DIR/Brewfile"
   success "Dependencies installed (Homebrew)"
-  exit 0
 fi
 
 # ---------------------------------------------------------------------------
@@ -139,3 +139,38 @@ install_pyenv
 install_rbenv
 
 success "Dependencies installed (Linux/apt)"
+
+# ---------------------------------------------------------------------------
+# 共通: VS Code 拡張機能 (vscode-extensions.txt)
+# ---------------------------------------------------------------------------
+install_vscode_extensions() {
+  command -v code >/dev/null 2>&1 || { warn "VS Code の code CLI が見つかりません — 拡張機能はスキップ"; return; }
+  local ext
+  while IFS= read -r ext || [[ -n "$ext" ]]; do
+    [[ -z "$ext" || "$ext" == \#* ]] && continue
+    if code --list-extensions 2>/dev/null | grep -qx "$ext"; then
+      success "code --install-extension $ext (installed)"
+    else
+      info "code --install-extension $ext"
+      code --install-extension "$ext" || warn "$ext のインストールに失敗しました"
+    fi
+  done < "$DOTFILES_DIR/vscode-extensions.txt"
+}
+
+# ---------------------------------------------------------------------------
+# 共通: PyVista 系ライブラリ (python/requirements-visualization.txt)
+# ---------------------------------------------------------------------------
+install_visualization() {
+  command -v uv >/dev/null 2>&1 || { warn "uv が見つかりません — Python visualization はスキップ"; return; }
+  if [[ ! -x "$VIZ_VENV/bin/python" ]]; then
+    info "Creating venv: $VIZ_VENV"
+    uv venv "$VIZ_VENV"
+  fi
+  uv pip install --python "$VIZ_VENV/bin/python" -r "$DOTFILES_DIR/python/requirements-visualization.txt"
+  success "PyVista 系ライブラリ -> $VIZ_VENV"
+}
+
+install_vscode_extensions
+install_visualization
+
+success "Dependencies installed"
