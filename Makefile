@@ -8,6 +8,9 @@ help: ## Show this help
 install: ## Create symlinks and install dotfiles
 	bash $(DOTFILES)/install.sh
 
+install-windows: ## Create symlinks on Windows (PowerShell)
+	powershell -ExecutionPolicy Bypass -File $(DOTFILES)/install.ps1
+
 deps: ## Install dependencies (auto-detects OS: brew / apt)
 	bash $(DOTFILES)/install-deps.sh
 
