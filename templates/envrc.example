@@ -1,0 +1,20 @@
+# .envrc — direnv でディレクトリ移動時に自動適用される環境変数
+# 使い方: プロジェクト直下に配置し、`direnv allow` で有効化
+#   cp ~/dotfiles/templates/envrc.example .envrc && direnv allow
+
+# --- 基本例 ---
+# export MY_PROJECT_DIR="$(pwd)"
+
+# --- PATH 追加 ---
+# export PATH="$(pwd)/bin:$PATH"
+# layout python
+
+# --- シークレット（1password CLI 経由、コミットしない） ---
+# export DB_URL="$(op read 'op://vault/item/field')"
+
+# --- ツールバージョン ---
+# use asdf
+# use nvm
+
+# --- 既存の値に依存する場合は export で引き継ぐ ---
+# export GOPATH="$HOME/go"

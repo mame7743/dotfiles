@@ -1,4 +1,5 @@
 brew "bat"
+brew "direnv"
 brew "fd"
 brew "fzf"
 brew "ghq"

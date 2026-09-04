@@ -68,5 +68,8 @@ create_gitignore() {
 }
 export PATH="$HOME/.local/bin:$PATH"
 
+# direnv — auto-load .envrc when entering a directory
+eval "$(direnv hook zsh)"
+
 # Machine-local overrides (not tracked by git)
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
