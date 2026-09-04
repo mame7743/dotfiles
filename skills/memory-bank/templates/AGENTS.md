@@ -1,22 +1,22 @@
-# <Project> — Agent Instructions
+# <プロジェクト名> — エージェント向け指示
 
-## Project Overview
+## プロジェクト概要
 
-(one paragraph)
+(1段落)
 
-## Commands
+## コマンド
 
 - build:
 - test:
 - lint:
 - dev:
 
-## Conventions
+## 規約
 
-- (language / framework / formatting rules)
+- (言語 / フレームワーク / フォーマット規則)
 
-## Memory
+## メモリ
 
-This project keeps a persistent memory bank.
-Read `docs/memory/README.md` for the index before starting work.
-When a significant decision is made, record it in `docs/memory/YYYY-MM-DD-<slug>.md`.
+このプロジェクトは永続メモリバンクを保持している。
+作業開始前に `docs/memory/README.md` の索引を読むこと。
+重要な決定をしたら `docs/memory/YYYY-MM-DD-<slug>.md` に記録すること。

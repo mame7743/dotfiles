@@ -1,15 +1,14 @@
 ---
-description: Save the current work context to this project's memory bank.
+description: 現在の作業状態をこのプロジェクトのメモリバンクに保存する。Save the current work context to the project's memory bank.
 agent: build
 ---
 
-Update this project's memory bank with the current state of work. Follow the
-memory-bank skill:
+このプロジェクトのメモリバンクを現在の作業状態で更新してください。memory-bank スキルに従って:
 
-1. Read `AGENTS.md` and `docs/memory/README.md` if they exist.
-2. Append a dated entry in `docs/memory/YYYY-MM-DD-<slug>.md`.
-3. Update the `README.md` index.
-4. Mark superseded entries `status: superseded`.
+1. 存在すれば `AGENTS.md` と `docs/memory/README.md` を読む。
+2. `docs/memory/YYYY-MM-DD-<slug>.md` に日付付きエントリを追加する。
+3. `README.md` の索引を更新する。
+4. 破棄されたエントリは `status: superseded` にする。
 
-$ARGUMENTS may contain a short summary of what to record. If no memory bank
-exists yet, bootstrap it from the memory-bank skill's templates.
+$ARGUMENTS には記録したい短い要約を入れられる。メモリバンクがまだ存在しない場合は、
+memory-bank スキルの templates/ から初期化する。

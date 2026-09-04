@@ -1,52 +1,48 @@
 ---
 name: memory-bank
-description: Persistent project memory. Use when starting or resuming work in a project, when the user says to save/update/record context or decisions, or when a significant architecture decision is made. Manages AGENTS.md and docs/memory/.
+description: プロジェクトの永続メモリ（メモリバンク）。作業開始・再開時、コンテキストや決定事項を保存/更新/記録してほしいとき、重要なアーキテクチャ判断をしたときに使う。AGENTS.md と docs/memory/ を管理する。Use when starting/resuming work, or when the user asks to save/update memory.
 ---
 
-# Memory Bank
+# メモリバンク（Memory Bank）
 
-Persistent, cross-session memory for a project. Writing to memory creates or
-modifies files — ask the user before creating files unless they already asked
-you to record something.
+プロジェクトの永続的なクロスセッションメモリ。ファイルの作成・変更を伴うため、
+ユーザーが明示的に記録を依頼していない限り、ファイル作成前に確認すること。
 
-## Structure
+## 構成
 
-- `AGENTS.md` — project instructions + index of memory entries
-- `docs/memory/` — timestamped records
-  - `README.md` — index / table of contents
-  - `YYYY-MM-DD-<slug>.md` — one record per entry
+- `AGENTS.md` — プロジェクトの指示 + メモリエントリの索引
+- `docs/memory/` — 日付付きの記録
+  - `README.md` — 目次 / 索引
+  - `YYYY-MM-DD-<slug>.md` — エントリ1件 = 1ファイル
 
-## When to write
+## いつ書くか
 
-- **Bootstrap**: copy `templates/` (inside this skill) into the project root.
-- **On request**: the user says "save", "記録して", "メモして", "update memory".
-- **Significant decision / architecture change**: ask the user first.
+- **初期化**: `templates/`（このスキル内）をプロジェクト直下にコピーする
+- **依頼時**: ユーザーが「保存して」「記録して」「メモして」「update memory」と言ったとき
+- **重要な決定 / アーキテクチャ変更**: まずユーザーに確認する
 
-## Record format
-
-Each entry:
+## エントリの形式
 
 ```markdown
-# <Title>
+# <タイトル>
 
 - date: YYYY-MM-DD
 - status: draft | decided | superseded
-- related: <paths or entry slugs>
+- related: <パスやエントリのslug>
 
-## Context
+## Context（背景）
 
-Why this exists.
+なぜこれが存在するのか。
 
-## Decision / Finding
+## Decision / Finding（決定・発見）
 
-## Open Questions
+## Open Questions（未解決の問い）
 ```
 
-## Protocol
+## プロトコル
 
-1. Read `AGENTS.md` and `docs/memory/README.md` first when memory exists.
-2. Add new entries as `docs/memory/YYYY-MM-DD-<slug>.md`.
-3. Keep the `README.md` index up to date when adding entries.
-4. When a decision is superseded, mark the old entry `status: superseded` and
-   link the new one.
-5. Keep entries short and factual — bullet lists over prose.
+1. メモリが存在する場合、まず `AGENTS.md` と `docs/memory/README.md` を読む。
+2. 新規エントリは `docs/memory/YYYY-MM-DD-<slug>.md` として追加する。
+3. エントリを追加したら `README.md` の索引も更新する。
+4. 決定が破棄・置換された場合、古いエントリを `status: superseded` にし、新しいものをリンクする。
+5. エントリは短く事実ベースで書く — 長文より箇条書き。

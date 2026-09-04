@@ -1,19 +1,19 @@
-# Memory Index
+# メモリ索引
 
-> Persistent, cross-session project memory.
-> Read this first when starting work.
+> 永続的なクロスセッションのプロジェクトメモリ。
+> 作業開始時はまずこれを読むこと。
 
-## Current status
+## 現在の状態
 
-(what the project state is right now)
+(今のプロジェクトの状態)
 
-## Entries
+## エントリ
 
-| Date | Slug | Status | Summary |
-|------|------|--------|---------|
-| YYYY-MM-DD | (example-slug) | decided | (summary) |
+| 日付 | Slug | 状態 | 概要 |
+|------|------|------|------|
+| YYYY-MM-DD | (example-slug) | decided | (概要) |
 
-## Conventions
+## 規約
 
-- New entries: `YYYY-MM-DD-<slug>.md`
-- Mark superseded entries with `status: superseded` and link the replacement.
+- 新規エントリ: `YYYY-MM-DD-<slug>.md`
+- 破棄されたエントリは `status: superseded` にし、置換先をリンクする。

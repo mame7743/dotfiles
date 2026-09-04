@@ -1,11 +1,11 @@
-# <Title>
+# <タイトル>
 
 - date: YYYY-MM-DD
 - status: draft
 - related:
 
-## Context
+## Context（背景）
 
-## Decision / Finding
+## Decision / Finding（決定・発見）
 
-## Open Questions
+## Open Questions（未解決の問い）
