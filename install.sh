@@ -51,6 +51,29 @@ for script in "$DOTFILES_DIR/bin/"*; do
   link "$script" "$HOME_DIR/bin/$(basename "$script")"
 done
 
+# --- LLM skills --------------------------------------------------------------
+# Each skill in $DOTFILES_DIR/skills/<name> is symlinked into every agent's
+# skills directory (opencode / claude / codex / ~/.agents).
+SKILL_DIRS=(
+  "$HOME_DIR/.config/opencode/skills"
+  "$HOME_DIR/.claude/skills"
+  "$HOME_DIR/.codex/skills"
+  "$HOME_DIR/.agents/skills"
+)
+
+if [[ -d "$DOTFILES_DIR/skills" ]]; then
+  for dir in "${SKILL_DIRS[@]}"; do
+    mkdir -p "$dir"
+  done
+  for skill in "$DOTFILES_DIR/skills/"*; do
+    [[ -d "$skill" ]] || continue
+    name="$(basename "$skill")"
+    for dir in "${SKILL_DIRS[@]}"; do
+      link "$skill" "$dir/$name"
+    done
+  done
+fi
+
 # --- vim undo directory ------------------------------------------------------
 mkdir -p "$HOME_DIR/.vim/undo"
 
