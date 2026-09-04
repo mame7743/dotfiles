@@ -1,4 +1,4 @@
-.PHONY: install update deps lint help
+.PHONY: install update deps deps-windows lint help
 
 DOTFILES := $(shell pwd)
 
@@ -8,8 +8,11 @@ help: ## Show this help
 install: ## Create symlinks and install dotfiles
 	bash $(DOTFILES)/install.sh
 
-deps: ## Install dependencies via Homebrew bundle (Brewfile)
-	brew bundle --file=$(DOTFILES)/Brewfile
+deps: ## Install dependencies (auto-detects OS: brew / apt)
+	bash $(DOTFILES)/install-deps.sh
+
+deps-windows: ## Install dependencies on Windows (winget)
+	powershell -ExecutionPolicy Bypass -File $(DOTFILES)/install-deps.ps1
 
 update: ## Pull latest changes and re-link
 	git pull --rebase
