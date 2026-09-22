@@ -17,7 +17,7 @@ Proxmox Backup Server への移行も比較したが、LXC の再構築を Ansib
 - `restore-test.sh` を追加し、最新スナップショットを一時領域へ復元して各 `data.tar` のアーカイブ完全性を月次検証する構成にした。
 - `backup-read-data.timer`（毎月1日）と `backup-restore-test.timer`（毎月第1土曜）を追加した。
 - `ansible-playbook playbooks/backup/deploy-services.yml` を実行し、pve へ restic 0.18.0、runner、3つの systemd timer を反映済み。
-- `/Users/atsushi/ansible/files/backup/backup.env` は権限を `0600` に修正し、pve の `/etc/backup.env` へ `0600 root:root` で配置済み。
+- `/Users/atsushi/ghq/github.com/mame7743/home-infra/files/backup/backup.env` は権限を `0600` に修正し、pve の `/etc/backup.env` へ `0600 root:root` で配置済み。
 - restic のランダムパスワードを 1Password の `Private/Proxmox Restic Repository` に保存済み。Ansible playbook 経由で pve の `/etc/backup/restic-password` に `0600 root:root` で配置済み。
 - B2 の restic リポジトリを初期化し、初回バックアップを成功させた。約 1.439 GiB のスナップショットを保存。
 - 実機検証で判明した `backup.sh` の環境変数 export 不足、`restore-test.sh` の `jq` 依存漏れ、非圧縮 tar に対する gzip 前提を修正・再デプロイした。

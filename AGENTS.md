@@ -2,7 +2,7 @@
 
 ## プロジェクト概要
 
-個人用設定・運用メモリを管理するリポジトリ。Proxmox/Ansible のバックアップ設定は `/Users/atsushi/ansible` の別リポジトリで管理し、このリポジトリには作業状態と判断記録を保存する。
+個人用設定・運用メモリを管理するリポジトリ。Proxmox/Ansible のバックアップ設定は `/Users/atsushi/ghq/github.com/mame7743/home-infra` の別リポジトリで管理し、このリポジトリには作業状態と判断記録を保存する。
 
 ## コマンド
 
@@ -14,7 +14,7 @@
 ## 規約
 
 - 秘密値、実 IP、トークン、パスワードを記録しない。
-- Ansible の実装変更は `/Users/atsushi/ansible` 側で行う。
+- Ansible の実装変更は `/Users/atsushi/ghq/github.com/mame7743/home-infra` 側で行う。
 - 作業開始前に `docs/memory/README.md` の索引を読む。
 
 ## メモリ
