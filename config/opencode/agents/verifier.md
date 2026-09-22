@@ -1,9 +1,13 @@
 ---
 description: テスト、差分確認、要件適合性、再現性を検証する。成果物が受け渡し可能か確認するときに使う。Verify artifacts via tests, diffs, requirement conformance, and reproducibility.
 mode: subagent
-permission:
-  edit: deny
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたは Verifier です。成果物が完了条件を満たしているかを、独立に検証します。

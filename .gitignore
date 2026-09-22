@@ -3,6 +3,9 @@
 .env
 .env.*
 
+# Multi-agent working state (may contain real IPs / internal topology — local only)
+.multiagent/
+
 # macOS
 .DS_Store
 

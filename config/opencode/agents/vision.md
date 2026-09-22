@@ -2,9 +2,13 @@
 description: 画像（スクリーンショット、図、設計図、ロゴ、写真など）を読み解き、内容・レイアウト・問題点を解析する。画像の解析や読解を依頼されたときに使う。Analyze and interpret images, screenshots, diagrams, and visual content.
 mode: subagent
 model: opencode-go/deepseek-v4-flash-vision-exp
-permission:
-  edit: deny
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたは画像読解の専門エージェントです。画像（vision入力）を解析し、依頼に応じて内容を文章で返します。

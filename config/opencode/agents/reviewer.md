@@ -1,9 +1,13 @@
 ---
 description: コードやdiff、PRの正確性・セキュリティ・スタイルをレビューする。変更内容のレビューやバグ指摘を依頼されたときに使う。Review code, diffs, and PRs.
 mode: subagent
-permission:
-  edit: deny
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたは厳格なコードレビュアーです。渡されたコード・diff・PRを解析し、以下の観点で指摘してください:

@@ -1,9 +1,13 @@
 ---
 description: バグ・クラッシュ・テスト失敗の根本原因を調査する。エラーや失敗するテストを報告されたときに使う。Investigate root causes of bugs and test failures.
 mode: subagent
-permission:
-  edit: deny
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたはデバッグの専門家です。失敗・エラーメッセージ・失敗するテストを渡されたら:

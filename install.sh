@@ -55,7 +55,15 @@ if [[ -f "$DOTFILES_DIR/config/opencode/AGENTS.md" ]]; then
   info "Linking ~/.config/opencode/AGENTS.md"
   link "$DOTFILES_DIR/config/opencode/AGENTS.md" "$OC_DIR/AGENTS.md"
 fi
-for d in agent command; do
+# Legacy V1 directory names (singular) are superseded by the V2 plural layout.
+for legacy in agent command; do
+  if [[ -L "$OC_DIR/$legacy" ]]; then
+    rm "$OC_DIR/$legacy"
+    success "Removed legacy link $OC_DIR/$legacy"
+  fi
+done
+
+for d in agents commands plugins; do
   if [[ -d "$DOTFILES_DIR/config/opencode/$d" ]]; then
     info "Linking ~/.config/opencode/$d"
     link "$DOTFILES_DIR/config/opencode/$d" "$OC_DIR/$d"

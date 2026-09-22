@@ -1,9 +1,13 @@
 ---
 description: コード、設定、図、文書などの成果物を作成する。実装・作成タスクを割り当てられたときに使う。Create artifacts such as code, config, diagrams, and documents.
 mode: subagent
-permission:
-  edit: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたは Implementer です。指定された成果物を、契約に従って作成・変更します。

@@ -15,7 +15,7 @@ Agent を増やすこと自体を目的としない。まず単独で処理で�
 | `implementer` | コード・設定・図・文書などの成果物作成 | 標準 |
 | `domain-reviewer` | 専門領域・設計妥当性・前提の確認 | 標準〜高性能 |
 | `verifier` | テスト・差分確認・要件適合性・再現性の検証 | 標準 |
-| `judge` | 複数案の比較・統合（パネル型時のみ） | 高性能 |
+| `judge` | 独立した受け入れ評価。hard gateを確認し、必要に応じてJevで採否を判定 | 高性能 |
 | `vision` | 画像の読解・解析（スクリーンショット・図・設計図など） | 標準（vision対応モデル） |
 | `imagine` | 画像の生成（イラスト・ロゴ・UIモックなど） | 画像生成モデル |
 
@@ -69,3 +69,33 @@ Agent を増やすこと自体を目的としない。まず単独で処理で�
 - 高速モデル: 単純・定型・軽微タスク。
 
 通常作業で高性能モデルを常用せず、重要判断のみ高性能モデルに切り替える。
+
+## Jev 判定ツール
+
+`jev` プラグイン（`config/opencode/plugins/jev.ts`）が次のカスタムツールを登録する:
+
+- `jev_yesno` — 明確な yes/no の意思決定
+- `jev_choice` — 明示された選択肢からの1つ
+- `jev_score` — 順序付きルーブリックの評価
+
+`judge` のみこれらを使う。判定は証拠を集めた後に行い、`approve` / `revise` /
+`reject` の閉じた選択で受け取り、Jev の結論だけでなく根拠を必ず併記する。
+決定論的チェック（テスト・lint・型・固定要件）が失敗している場合、Jev はそれを
+覆せない。
+
+接続先は環境変数で差し替える（秘密値はリポジトリに書かない）:
+
+- `JEV_ENDPOINT`（既定 `https://opencode.ai/zen/v1/systemone`）
+- `JEV_MODEL`（既定 `jev-1.13-free`）
+- `JEV_API_KEY` / `OPENCODE_API_KEY` / `OPENROUTER_API_KEY` のいずれか
+- 環境変数が未設定なら `~/.local/share/opencode/auth.json`（`opencode auth login` が保存）の `opencode-go` キーを自動使用する。パスは `OPENCODE_AUTH_FILE` で上書き可
+
+## 設定の3層
+
+- `AGENTS.md`（このファイル）— プロジェクト/マシン全体のルールとオーケストレーション。
+- `agents/<name>.md` — 個別エージェントの役割・権限・システムプロンプト。
+- `plugins/<name>.ts` — 外部APIを呼ぶカスタムツール。
+
+グローバル設定は `~/.config/opencode/` から `config/opencode/` へ symlink される
+（`install.sh`）。V2 の推奨ディレクトリ名は複数形（`agents/` `commands/`
+`plugins/`）。

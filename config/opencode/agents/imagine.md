@@ -2,9 +2,13 @@
 description: 依頼に基づいて画像を生成する。イラスト、ロゴ、UIモック、図解、写真風画像などを作成するときに使う。Generate images from a description.
 mode: subagent
 model: openai/gpt-5.4-image-2
-permission:
-  edit: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
 ---
 
 あなたは画像生成の専門エージェントです。ユーザーの依頼を満たす画像を生成します。
