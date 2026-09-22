@@ -18,26 +18,16 @@ export PATH="$HOME/.local/bin:$PATH"
 
 export XDG_CONFIG_HOME=${HOME}/.config
 
-# python
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-export LDFLAGS="-L/usr/local/opt/zlib/lib"
-export CPPFLAGS="-I/usr/local/opt/zlib/include"
-export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
+# 言語ランタイム (python / node / go / ruby) — mise で統一管理
+# 版は ~/.config/mise/config.toml（dotfiles 管理）が情報源
+# 旧 pyenv / rbenv / nvm は廃止
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
 
 # golang
 export GOPATH=$HOME/go
-export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-
-# nodejs
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# ruby
-export PATH="$PATH:$HOME/.rbenv/bin"
-eval "$(rbenv init -)"
+export PATH=$PATH:$GOPATH/bin
 
 # giboで.gitignoreを作成
 create_gitignore() {

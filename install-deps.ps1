@@ -4,6 +4,12 @@
 
 $ErrorActionPreference = "Stop"
 
+# 固定バージョンの唯一の情報源（deps/versions.env を読み取る）
+$versions = @{}
+Get-Content "$PSScriptRoot\deps\versions.env" | ForEach-Object {
+  if ($_ -match '^\s*([A-Z0-9_]+)="([^"]*)"') { $versions[$Matches[1]] = $Matches[2] }
+}
+
 $winget = Get-Command winget -ErrorAction SilentlyContinue
 if (-not $winget) {
   Write-Host "[error] winget が見つかりません。Windows 10/11 の App Installer を更新してください。" -ForegroundColor Red
@@ -100,25 +106,36 @@ if ($uv) {
   & uv tool install jupyterlab
   & uv tool install pre-commit
 
-  # PyVista 系ライブラリ (python/requirements-visualization.txt)
+  # PyVista 系ライブラリ (python/requirements-visualization.lock)
   $venv = Join-Path $env:USERPROFILE ".local\venvs\visualization"
   if (-not (Test-Path "$venv\Scripts\python.exe")) {
     Write-Host "[info]  Creating venv: $venv" -ForegroundColor Blue
     & uv venv $venv
   }
-  & uv pip install --python "$venv\Scripts\python.exe" -r "$PSScriptRoot\python\requirements-visualization.txt"
+  & uv pip install --python "$venv\Scripts\python.exe" -r "$PSScriptRoot\python\requirements-visualization.lock"
   Write-Host "[ok]    PyVista 系ライブラリ -> $venv" -ForegroundColor Green
 } else {
   Write-Host "[warn]  uv が見つかりません — Python visualization はスキップ" -ForegroundColor Yellow
 }
 
 # ---------------------------------------------------------------------------
-# post-install: Go ツール (gopls / golangci-lint)
+# post-install: Go ツール (gopls / golangci-lint) — 固定バージョン
 # ---------------------------------------------------------------------------
 $go = Get-Command go -ErrorAction SilentlyContinue
 if ($go) {
-  & go install golang.org/x/tools/gopls@latest
-  & go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  & go install "golang.org/x/tools/gopls@$($versions['GOPLS_VERSION'])"
+  & go install "github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$($versions['GOLANGCI_LINT_VERSION'])"
+}
+
+# ---------------------------------------------------------------------------
+# post-install: 言語ランタイム (mise) — config/mise/config.toml が情報源
+# ---------------------------------------------------------------------------
+$mise = Get-Command mise -ErrorAction SilentlyContinue
+if ($mise) {
+  & mise install
+  Write-Host "[ok]    言語ランタイム (mise)" -ForegroundColor Green
+} else {
+  Write-Host "[warn]  mise が見つかりません — 言語ランタイムはスキップ" -ForegroundColor Yellow
 }
 
 Write-Host "[ok]    依存ソフトウェアのインストールが完了しました。" -ForegroundColor Green

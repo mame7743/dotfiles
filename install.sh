@@ -70,6 +70,14 @@ for d in agents commands plugins; do
   fi
 done
 
+# --- mise (言語ランタイムの固定) ---------------------------------------------
+# config/mise/config.toml がグローバルなランタイム版の情報源
+if [[ -f "$DOTFILES_DIR/config/mise/config.toml" ]]; then
+  mkdir -p "$HOME_DIR/.config/mise"
+  info "Linking ~/.config/mise/config.toml"
+  link "$DOTFILES_DIR/config/mise/config.toml" "$HOME_DIR/.config/mise/config.toml"
+fi
+
 # --- bin/ (custom tools) -----------------------------------------------------
 info "Linking ~/bin → $DOTFILES_DIR/bin"
 mkdir -p "$HOME_DIR/bin"

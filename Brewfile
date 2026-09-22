@@ -99,9 +99,9 @@ brew "lazygit"
 brew "lua-language-server"
 brew "node"
 brew "opencode"
-brew "pyenv"
-brew "rbenv"
 brew "zlib"
+# 言語ランタイム (python/node/go/ruby) は mise へ一本化: config/mise/config.toml
+# 旧 pyenv / rbenv は廃止（mise が置き換え）
 
 cask "1password-cli"
 cask "font-meslo-lg-nerd-font"

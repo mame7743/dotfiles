@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # install-deps.sh — install dotfiles dependencies across platforms
-#   macOS   : Homebrew bundle (Brewfile)
-#   Linux   : apt (Debian/Ubuntu) + GitHub release downloads
+#   macOS   : Homebrew bundle (Brewfile) + mise (language runtimes)
+#   Linux   : apt (Debian/Ubuntu) + pinned GitHub releases + mise
 #   Windows : run install-deps.ps1 instead (native PowerShell / winget)
+#
+# 固定バージョンは deps/versions.env、ランタイムは config/mise/config.toml が情報源。
+# 方針は docs/dependency-policy.md を参照。
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,9 +13,31 @@ LOCAL_BIN="$HOME/.local/bin"
 LOCAL_SHARE="$HOME/.local/share"
 VIZ_VENV="$HOME/.local/venvs/visualization"
 
+# 固定バージョン・チェックサムの唯一の情報源
+# shellcheck source=/dev/null
+source "$DOTFILES_DIR/deps/versions.env"
+
 info()    { printf '\033[0;34m[info]\033[0m  %s\n' "$*"; }
 success() { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
 warn()    { printf '\033[0;33m[warn]\033[0m  %s\n' "$*"; }
+
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
+
+# 期待チェックサムと一致しなければ 1 を返す
+verify_sha256() { # $1=file $2=expected
+  local actual
+  actual="$(sha256_of "$1")"
+  if [[ "$actual" != "$2" ]]; then
+    warn "チェックサム不一致: 期待 $2 / 実際 $actual"
+    return 1
+  fi
+}
 
 case "$(uname -s)" in
   Darwin) OS=macos ;;
@@ -25,32 +50,9 @@ case "$(uname -s)" in
     exit 1 ;;
 esac
 
-# ---------------------------------------------------------------------------
-# macOS
-# ---------------------------------------------------------------------------
-if [[ "$OS" == macos ]]; then
-  info "macOS detected — installing via Homebrew bundle"
-  brew bundle --file="$DOTFILES_DIR/Brewfile"
-  success "Dependencies installed (Homebrew)"
-fi
-
-# ---------------------------------------------------------------------------
-# Linux (Debian/Ubuntu)
-# ---------------------------------------------------------------------------
-ARCH="$(uname -m)"
-case "$ARCH" in
-  x86_64)          LAZYGIT_ARCH=x86_64; LUALS_ARCH=x64 ;;
-  aarch64|arm64)   LAZYGIT_ARCH=arm64;  LUALS_ARCH=arm64 ;;
-  *) warn "未対応アーキテクチャ: $ARCH"; exit 1 ;;
-esac
-
-info "Debian/Ubuntu detected — installing via apt"
-sudo apt-get update -y
-sudo apt-get install -y \
-  bat curl fd-find fzf git golang-go ripgrep tmux zlib1g-dev \
-  ca-certificates unzip build-essential
-
-mkdir -p "$LOCAL_BIN" "$LOCAL_SHARE"
+# ===========================================================================
+# ツール導入関数（OS 共通で定義。呼び出し側で使うものを選ぶ）
+# ===========================================================================
 
 # fd shim (Debian は fdfind として導入される)
 install_fd_shim() {
@@ -61,15 +63,6 @@ install_fd_shim() {
   fi
 }
 
-# GitHub 最新リリースのアセットURLを取得
-github_asset_url() {
-  local repo="$1" pattern="$2"
-  curl -fsSL "https://api.github.com/repos/${repo}/releases/latest" \
-    | grep -oE 'https://[^"]+' \
-    | grep -E "$pattern" \
-    | head -n1 || true
-}
-
 install_gibo() {
   command -v gibo >/dev/null 2>&1 && { success "gibo (installed)"; return; }
   curl -fsSL "https://raw.githubusercontent.com/simonwhitaker/gibo/master/gibo" -o "$LOCAL_BIN/gibo"
@@ -77,25 +70,39 @@ install_gibo() {
   success "gibo -> $LOCAL_BIN/gibo"
 }
 
+# 固定バージョン + チェックサム検証付きで GitHub リリースを取得
 install_lazygit() {
   command -v lazygit >/dev/null 2>&1 && { success "lazygit (installed)"; return; }
-  local url tmp
-  url="$(github_asset_url "jesseduffield/lazygit" "lazygit_[0-9.]+_linux_${LAZYGIT_ARCH}\.tar\.gz")"
-  if [[ -z "$url" ]]; then warn "lazygit: release URL が見つかりません"; return 1; fi
+  # versions.env は v なしで保存する（タグは v 付き / アセット名は v なし）
+  local ver="${LAZYGIT_VERSION#v}" url tmp sum
+  case "$LAZYGIT_ARCH" in
+    x86_64) sum="$LAZYGIT_LINUX_AMD64_SHA256" ;;
+    arm64)  sum="$LAZYGIT_LINUX_ARM64_SHA256" ;;
+    *)      warn "lazygit: 未対応アーキテクチャ $LAZYGIT_ARCH"; return 1 ;;
+  esac
+  url="https://github.com/jesseduffield/lazygit/releases/download/v${ver}/lazygit_${ver}_linux_${LAZYGIT_ARCH}.tar.gz"
   tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
+  curl -fsSL "$url" -o "$tmp/lazygit.tar.gz" || { warn "lazygit: ダウンロード失敗"; rm -rf "$tmp"; return 1; }
+  verify_sha256 "$tmp/lazygit.tar.gz" "$sum" || { warn "lazygit: 検証失敗のため中止"; rm -rf "$tmp"; return 1; }
+  tar -xzf "$tmp/lazygit.tar.gz" -C "$tmp"
   install -Dm755 "$tmp/lazygit" "$LOCAL_BIN/lazygit"
   rm -rf "$tmp"
-  success "lazygit -> $LOCAL_BIN/lazygit"
+  success "lazygit $ver -> $LOCAL_BIN/lazygit"
 }
 
 install_luals() {
   command -v lua-language-server >/dev/null 2>&1 && { success "lua-language-server (installed)"; return; }
-  local url tmp dest extracted
-  url="$(github_asset_url "luals/lua-language-server" "lua-language-server-[0-9.]+-linux-${LUALS_ARCH}\.tar\.gz")"
-  if [[ -z "$url" ]]; then warn "lua-language-server: release URL が見つかりません"; return 1; fi
+  local ver="$LUALS_VERSION" url tmp sum dest extracted
+  case "$LUALS_ARCH" in
+    x64)   sum="$LUALS_LINUX_X64_SHA256" ;;
+    arm64) sum="$LUALS_LINUX_ARM64_SHA256" ;;
+    *)     warn "lua-language-server: 未対応アーキテクチャ $LUALS_ARCH"; return 1 ;;
+  esac
+  url="https://github.com/LuaLS/lua-language-server/releases/download/${ver}/lua-language-server-${ver}-linux-${LUALS_ARCH}.tar.gz"
   tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
+  curl -fsSL "$url" -o "$tmp/luals.tar.gz" || { warn "lua-language-server: ダウンロード失敗"; rm -rf "$tmp"; return 1; }
+  verify_sha256 "$tmp/luals.tar.gz" "$sum" || { warn "lua-language-server: 検証失敗のため中止"; rm -rf "$tmp"; return 1; }
+  tar -xzf "$tmp/luals.tar.gz" -C "$tmp"
   if [[ -d "$tmp/bin" ]]; then
     extracted="$tmp"
   else
@@ -106,43 +113,37 @@ install_luals() {
   rm -rf "$dest"
   mv "$extracted" "$dest"
   ln -sfn "$dest/bin/lua-language-server" "$LOCAL_BIN/lua-language-server"
-  success "lua-language-server -> $LOCAL_BIN"
+  rm -rf "$tmp"
+  success "lua-language-server $ver -> $LOCAL_BIN"
 }
 
 install_ghq() {
   command -v ghq >/dev/null 2>&1 && { success "ghq (installed)"; return; }
-  go install github.com/x-motemen/ghq@latest
-  success "ghq (go install)"
+  go install "github.com/x-motemen/ghq@${GHQ_VERSION}"
+  success "ghq ${GHQ_VERSION} (go install)"
 }
 
-install_pyenv() {
-  if [[ -d "$HOME/.pyenv" ]]; then success "pyenv (present)"; return; fi
-  git clone https://github.com/pyenv/pyenv.git "$HOME/.pyenv"
-  success "pyenv -> $HOME/.pyenv"
+# Linux には mise が無いので公式インストーラで導入（macOS は Homebrew）
+install_mise() {
+  if command -v mise >/dev/null 2>&1; then success "mise (installed)"; return; fi
+  if ! command -v curl >/dev/null 2>&1; then warn "curl がないため mise を導入できません"; return; fi
+  curl -fsSL https://mise.run | sh
+  export PATH="$LOCAL_BIN:$PATH"
+  success "mise -> $LOCAL_BIN/mise"
 }
 
-install_rbenv() {
-  if [[ -d "$HOME/.rbenv" ]]; then success "rbenv (present)"; return; fi
-  git clone https://github.com/rbenv/rbenv.git "$HOME/.rbenv"
-  if ! [[ -d "$HOME/.rbenv/plugins/ruby-build" ]]; then
-    git clone https://github.com/rbenv/ruby-build.git "$HOME/.rbenv/plugins/ruby-build"
+# 言語ランタイムは mise に一本化（config/mise/config.toml が情報源）
+install_mise_runtimes() {
+  if ! command -v mise >/dev/null 2>&1; then
+    warn "mise が見つかりません — 言語ランタイムはスキップ"
+    return
   fi
-  success "rbenv -> $HOME/.rbenv"
+  info "mise install（config/mise/config.toml のランタイム）"
+  mise install
+  success "言語ランタイム (mise)"
 }
 
-install_fd_shim
-install_gibo
-install_lazygit
-install_luals
-install_ghq
-install_pyenv
-install_rbenv
-
-success "Dependencies installed (Linux/apt)"
-
-# ---------------------------------------------------------------------------
-# 共通: VS Code 拡張機能 (vscode-extensions.txt)
-# ---------------------------------------------------------------------------
+# VS Code 拡張機能 (vscode-extensions.txt)
 install_vscode_extensions() {
   command -v code >/dev/null 2>&1 || { warn "VS Code の code CLI が見つかりません — 拡張機能はスキップ"; return; }
   local ext
@@ -157,19 +158,65 @@ install_vscode_extensions() {
   done < "$DOTFILES_DIR/vscode-extensions.txt"
 }
 
-# ---------------------------------------------------------------------------
-# 共通: PyVista 系ライブラリ (python/requirements-visualization.txt)
-# ---------------------------------------------------------------------------
+# PyVista 系ライブラリ
+#   入力は python/requirements-visualization.txt（人手）、
+#   実際に導入するのは固定済みの .lock（make deps-update で再生成）
 install_visualization() {
   command -v uv >/dev/null 2>&1 || { warn "uv が見つかりません — Python visualization はスキップ"; return; }
+  local lock="$DOTFILES_DIR/python/requirements-visualization.lock"
+  [[ -f "$lock" ]] || { warn "requirements-visualization.lock がありません（make deps-update）"; return; }
   if [[ ! -x "$VIZ_VENV/bin/python" ]]; then
     info "Creating venv: $VIZ_VENV"
     uv venv "$VIZ_VENV"
   fi
-  uv pip install --python "$VIZ_VENV/bin/python" -r "$DOTFILES_DIR/python/requirements-visualization.txt"
+  uv pip install --python "$VIZ_VENV/bin/python" -r "$lock"
   success "PyVista 系ライブラリ -> $VIZ_VENV"
 }
 
+# ===========================================================================
+# OS 別インストール
+# ===========================================================================
+
+if [[ "$OS" == macos ]]; then
+  # -------------------------------------------------------------------------
+  # macOS
+  # -------------------------------------------------------------------------
+  info "macOS detected — installing via Homebrew bundle"
+  brew bundle --file="$DOTFILES_DIR/Brewfile"
+  success "Dependencies installed (Homebrew)"
+elif [[ "$OS" == linux ]]; then
+  # -------------------------------------------------------------------------
+  # Linux (Debian/Ubuntu)
+  # -------------------------------------------------------------------------
+  ARCH="$(uname -m)"
+  case "$ARCH" in
+    x86_64)          LAZYGIT_ARCH=x86_64; LUALS_ARCH=x64 ;;
+    aarch64|arm64)   LAZYGIT_ARCH=arm64;  LUALS_ARCH=arm64 ;;
+    *) warn "未対応アーキテクチャ: $ARCH"; exit 1 ;;
+  esac
+
+  info "Debian/Ubuntu detected — installing via apt"
+  sudo apt-get update -y
+  sudo apt-get install -y \
+    bat curl fd-find fzf git golang-go ripgrep tmux zlib1g-dev \
+    ca-certificates unzip build-essential
+
+  mkdir -p "$LOCAL_BIN" "$LOCAL_SHARE"
+
+  install_fd_shim
+  install_gibo
+  install_lazygit
+  install_luals
+  install_ghq
+  install_mise
+
+  success "Dependencies installed (Linux/apt)"
+fi
+
+# ===========================================================================
+# 共通
+# ===========================================================================
+install_mise_runtimes
 install_vscode_extensions
 install_visualization
 

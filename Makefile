@@ -1,4 +1,4 @@
-.PHONY: install update deps deps-windows lint help
+.PHONY: install update deps deps-check deps-update deps-windows lint help
 
 DOTFILES := $(shell pwd)
 
@@ -14,6 +14,12 @@ install-windows: ## Create symlinks on Windows (PowerShell)
 deps: ## Install dependencies (auto-detects OS: brew / apt)
 	bash $(DOTFILES)/install-deps.sh
 
+deps-check: ## Check declared vs installed dependencies (drift detection)
+	bash $(DOTFILES)/deps/check.sh
+
+deps-update: ## Update pinned versions (deps/versions.env) and lock files
+	bash $(DOTFILES)/deps/update.sh
+
 deps-windows: ## Install dependencies on Windows (winget)
 	powershell -ExecutionPolicy Bypass -File $(DOTFILES)/install-deps.ps1
 
@@ -22,4 +28,4 @@ update: ## Pull latest changes and re-link
 	bash $(DOTFILES)/install.sh
 
 lint: ## Check shell scripts with shellcheck (requires shellcheck)
-	shellcheck install.sh lib/*.sh bin/*.sh 2>/dev/null || true
+	shellcheck install.sh lib/*.sh bin/*.sh deps/*.sh 2>/dev/null || true

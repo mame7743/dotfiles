@@ -15,6 +15,7 @@ Proxmox のバックアップ方式は PBS ではなく、既存の restic → S
 | 2026-09-05 | obsidian-local-vaults | in-progress | `obsidian-work` / `obsidian-home` の新規ローカルVaultを作成 |
 | 2026-09-22 | opencode-v2-jev-judge | decided | OpenCode設定をV2ネイティブ化、Jev judgeプラグイン（jev_yesno/choice/score）を追加 |
 | 2026-09-22 | ghq-repo-layout | decided | リポジトリをghq管理へ移行、`~/ansible` symlinkを廃止、リポジトリ名を`home-infra`へ変更 |
+| 2026-09-22 | dependency-management | decided | 依存を3層に分類し層ごとに固定／追従。mise一本化・SHA256固定・ロック・deps-check導入 |
 
 ## 規約
 
