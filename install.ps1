@@ -68,13 +68,28 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 }
 
 # --- opencode global config --------------------------------------------------
+# 個別ファイル / ディレクトリのみリンクする（node_modules 等の生成物を含めない）
 Write-Info "Linking opencode config"
 $ocDir = "$HOME_DIR\.config\opencode"
 New-Item -ItemType Directory -Force -Path $ocDir | Out-Null
 if (Test-Path "$DOTFILES\config\opencode\opencode.jsonc") {
   New-Link "$DOTFILES\config\opencode\opencode.jsonc" "$ocDir\opencode.jsonc"
 }
-foreach ($d in @("agent", "command")) {
+if (Test-Path "$DOTFILES\config\opencode\AGENTS.md") {
+  New-Link "$DOTFILES\config\opencode\AGENTS.md" "$ocDir\AGENTS.md"
+}
+# 旧 V1 の単数ディレクトリ名は V2 の複数形へ移行済み
+foreach ($legacy in @("agent", "command")) {
+  $p = "$ocDir\$legacy"
+  if (Test-Path $p) {
+    $item = Get-Item $p -Force
+    if ($item.LinkType) {
+      Remove-Item $p -Force
+      Write-Ok "Removed legacy link $p"
+    }
+  }
+}
+foreach ($d in @("agents", "commands", "plugins")) {
   if (Test-Path "$DOTFILES\config\opencode\$d") {
     New-Link "$DOTFILES\config\opencode\$d" "$ocDir\$d"
   }
