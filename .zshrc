@@ -56,6 +56,34 @@ create_gitignore() {
     # 結果のファイルをbatで表示
     bat "$input_file"
 }
+
+# ghq + fzf — リポジトリを選んで操作
+#   gcd : 選んだリポジトリへ移動
+#   gco : 選んだリポジトリを $EDITOR で開く
+_ghq_pick() {
+    ghq list -p | fzf \
+        --prompt='ghq> ' \
+        --height=60% \
+        --reverse \
+        --preview 'git -C {} --no-pager log --oneline --decorate -12 2>/dev/null || ls -la {}' \
+        --preview-window='right:50%:wrap'
+}
+
+gcd() {
+    local repo
+    repo="$(_ghq_pick)" || return
+    [[ -n "$repo" ]] || return
+    cd "$repo" || return
+}
+
+gco() {
+    local repo
+    repo="$(_ghq_pick)" || return
+    [[ -n "$repo" ]] || return
+    local ed="${EDITOR:-vim}"
+    "${=ed}" "$repo"
+}
+
 export PATH="$HOME/.local/bin:$PATH"
 
 # direnv — auto-load .envrc when entering a directory

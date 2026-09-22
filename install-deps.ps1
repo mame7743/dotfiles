@@ -119,10 +119,11 @@ if ($uv) {
 }
 
 # ---------------------------------------------------------------------------
-# post-install: Go ツール (gopls / golangci-lint) — 固定バージョン
+# post-install: Go ツール (ghq / gopls / golangci-lint) — 固定バージョン
 # ---------------------------------------------------------------------------
 $go = Get-Command go -ErrorAction SilentlyContinue
 if ($go) {
+  & go install "github.com/x-motemen/ghq@$($versions['GHQ_VERSION'])"
   & go install "golang.org/x/tools/gopls@$($versions['GOPLS_VERSION'])"
   & go install "github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$($versions['GOLANGCI_LINT_VERSION'])"
 }
