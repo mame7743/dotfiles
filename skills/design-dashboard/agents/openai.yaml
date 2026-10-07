@@ -1,0 +1,13 @@
+interface:
+  display_name: ダッシュボード設計・レビュー
+  short_description: デジタル庁の実践ガイドを参考に、要件整理から画面設計・品質レビューまで支援
+  default_prompt: $design-dashboard を使って、利用者の判断と行動につながるダッシュボードを設計してください。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
