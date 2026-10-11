@@ -38,6 +38,24 @@
 - **forgejo remote**（`jitaku-tools/proxmox-homelab`）はサーバ側が未リネーム。`10.0.1.30:3000` に
   到達できないため後日対応。`.git/config` の URL は旧名のまま温存している。
 - `mame7743/home-infra-archive`（空）は削除可（GitHub トークンに `delete_repo` スコープが必要）。
-- `~/.ssh` の別名ホスト階層（`ghq/github.com.rohm/...`, `ghq/github.com.sub/...`,
-  `ghq/github.com.mame7743/mame7743/lispy`）は正規化していない。
+- ~~別名ホスト階層を正規化していない~~ → 2026-09-22 に正規化済み（下記「追記」参照）。
 - VS Code の recent folder は旧パスのまま（任意で更新）。
+
+## 追記: 別名ホスト階層の正規化（2026-09-22）
+
+`includeIf` の会社 identity 切り替えに引きずられて残っていた別名ホスト階層を、
+標準レイアウト `~/ghq/github.com/<owner>/<repo>` へ統合した（`mv` ベース、重複なし）。
+
+| 旧 | 新 |
+|---|---|
+| `github.com.mame7743/mame7743/lispy` | `github.com/mame7743/lispy` |
+| `github.com.rohm/mnfsys-rohm/rlc` | `github.com/mnfsys-rohm/rlc` |
+| `github.com.rohm/mnfsys-rohm/github-ops-handbook` | `github.com/mnfsys-rohm/github-ops-handbook` |
+| `github.com.sub/rohm/tlra_control_main` | `github.com/rohm/tlra_control_main` |
+
+- 空になった `github.com.mame7743/` `github.com.rohm/` `github.com.sub/` は削除。
+- `~/.gitconfig.local` の `includeIf` から `github.com.rohm/` と `github.com.sub/` を削除し、
+  `github.com/rohm/` を追加（`tlra_control_main` の会社 identity を維持）。
+- 検証: dirty 数は移動前後で不変（lispy 0 / rlc 37 / handbook 11 / tlra 20）、
+  `rlc` の未push 171 コミットも保持。`git config user.email` は rohm/mnfsys-rohm 系=会社、
+  mame7743 系=個人を確認。`lispy` の `.venv` は絶対パス依存のため `uv sync` で再作成。

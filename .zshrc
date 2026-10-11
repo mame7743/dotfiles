@@ -7,6 +7,7 @@ alias arm='arch -arm64 zsh'
 alias lg='lazygit'
 alias gia='create_gitignore'
 alias get_idf='. $HOME/esp/esp-idf/export.sh'
+alias oc='opencode'
 
 # Apple silicon 向けの設定
 if [[ $(uname -m) == 'arm64' ]]; then
@@ -59,7 +60,7 @@ create_gitignore() {
 
 # ghq + fzf — リポジトリを選んで操作
 #   gcd : 選んだリポジトリへ移動
-#   gco : 選んだリポジトリを $EDITOR で開く
+#   gco : 選んだリポジトリをエディタで開く（$GCO_EDITOR / $EDITOR / $VISUAL 優先）
 _ghq_pick() {
     ghq list -p | fzf \
         --prompt='ghq> ' \
@@ -76,11 +77,29 @@ gcd() {
     cd "$repo" || return
 }
 
+# エディタ解決: 環境変数を優先し、未設定なら nvim → vim → vi にフォールバック。
+#   1. $GCO_EDITOR  … gco 専用。VS Code など別のエディタを指定したいとき
+#   2. $EDITOR      … 汎用（既定 nvim）
+#   3. $VISUAL
+# 対話起動では待たないよう --wait は外す（git commit 等は $EDITOR 側で管理）。
+_editor() {
+    local ed="${GCO_EDITOR:-${EDITOR:-${VISUAL:-}}}"
+    if [[ -z "$ed" ]]; then
+        local c
+        for c in nvim vim vi; do
+            if command -v "$c" >/dev/null 2>&1; then ed="$c"; break; fi
+        done
+    fi
+    [[ -n "$ed" ]] || ed="vi"
+    print -r -- "${ed//--wait/}"
+}
+
 gco() {
     local repo
     repo="$(_ghq_pick)" || return
     [[ -n "$repo" ]] || return
-    local ed="${EDITOR:-vim}"
+    local ed
+    ed="$(_editor)"
     "${=ed}" "$repo"
 }
 
