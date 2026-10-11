@@ -27,7 +27,6 @@ brew "zoxide"
 # ---------------------------------------------------------------------------
 brew "bash"
 brew "starship"
-brew "tmux"
 brew "zsh"
 
 # ---------------------------------------------------------------------------
@@ -81,13 +80,14 @@ brew "typst"
 # 可視化
 # ---------------------------------------------------------------------------
 cask "paraview"
-# PyVista 系は pip で管理: python/requirements-visualization.txt
+# PyVista 系は pip で管理: deps/python/requirements-visualization.txt
 
 # ---------------------------------------------------------------------------
-# エディタ
+# エディタ・端末
 # ---------------------------------------------------------------------------
 cask "visual-studio-code"
-# VS Code 拡張機能は vscode-extensions.txt で管理
+cask "wezterm"
+# VS Code 拡張機能は deps/vscode-extensions.txt で管理
 
 # ---------------------------------------------------------------------------
 # その他（既存ツールの維持）
@@ -95,6 +95,8 @@ cask "visual-studio-code"
 brew "ghq"
 brew "gibo"
 brew "herdr"
+brew "jj"
+brew "jjui"
 brew "lazygit"
 brew "lua-language-server"
 brew "node"

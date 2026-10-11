@@ -1,0 +1,48 @@
+# deps/core.txt — 最低限必要なアプリ（core プロファイル）の唯一の情報源
+#
+# 用途: 日常のターミナル開発環境を再現するセット（現状 macOS / Homebrew のみ）
+# 形式: <manager> <name>
+#   manager : brew（formula） / cask（GUIアプリ）
+# コメント(#)と空行は無視される。値に # は使わない。
+#
+# 導入: make deps-core  /  scripts/install-deps.sh --core
+# 確認: make deps-core-dry （= scripts/install-deps.sh --core --dry-run）
+# フル導入（make deps）とは別。OS別の重複は将来ここへ寄せる。
+#
+# 端末は WezTerm（ペイン分割）、エージェント実行は Herdr + opencode。
+# tmux / starship / zoxide は現状使用していないため対象外。
+
+# 基本
+brew git
+brew jj
+brew curl
+brew wget
+
+# リポジトリ・GitHub 操作
+brew gh
+brew ghq
+brew gibo
+brew lazygit
+brew jjui
+
+# シェル・端末
+brew zsh
+brew bash
+cask wezterm
+
+# 検索・操作
+brew ripgrep
+brew fd
+brew fzf
+brew bat
+brew jq
+brew yq
+
+# 開発補助
+brew mise
+brew direnv
+
+# エディタ・AI
+brew neovim
+brew opencode
+brew herdr
