@@ -1,6 +1,3 @@
-[submodule "agent-skills/repos/custom"]
-	path = agent-skills/repos/custom
-	url = https://github.com/mame7743/agent-skills.git
 [submodule "agent-skills/repos/mattpocock"]
 	path = agent-skills/repos/mattpocock
 	url = https://github.com/mame7743/agent-skills-mattpocock.git
