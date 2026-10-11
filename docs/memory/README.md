@@ -24,6 +24,7 @@ Proxmox のバックアップ方式は PBS ではなく、既存の restic → S
 | 2026-10-11 | core-environment | decided | core を日常ターミナル開発環境として再定義。WezTerm 採用・tmux 廃止・jj/jjui/opencode/herdr 追加・core でも mise install |
 | 2026-10-11 | repo-structure | decided | インストーラを scripts/ へ、PowerShell プロファイルを config/ へ、依存宣言を deps/ へ集約。bin/ を ~/.local/bin に統一し make bin-tools を追加。agent-skills/repos を配布元名に統一 |
 | 2026-10-11 | jjui-menu | decided | jjui に Lua 設定を追加。キー m で日本語操作メニューを開き、選択コミット（[選択]）／@・全体（[全体]）の操作を選ぶ。ビルトインアクションのみ使用 |
+| 2026-10-11 | bootstrap-submodules | decided | bootstrap が submodule をパスごとに自動初期化。private 未取得は警告スキップし、公開スキルは導入。ワンライナーで完結 |
 
 ## 規約
 

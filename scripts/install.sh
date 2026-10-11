@@ -121,7 +121,17 @@ fi
 # 選択したものだけを Agent の読込先へ symlink する。
 # Git / submodule 操作はここでは行わない（README の手順に分離）。
 if [[ -x "$DOTFILES_DIR/agent-skills/install.sh" ]]; then
-  if [[ -d "$DOTFILES_DIR/agent-skills/repos/mattpocock/skills" ]]; then
+  # 1つでも submodule が取得済みなら install.sh を実行する
+  # （未取得のスキルは install.sh 側が警告してスキップする）。
+  submodules_ready=0
+  for d in "$DOTFILES_DIR"/agent-skills/repos/*/; do
+    [[ -d "$d" ]] || continue
+    if [[ -n "$(ls -A "$d" 2>/dev/null | grep -v '^\.git$')" ]]; then
+      submodules_ready=1
+      break
+    fi
+  done
+  if [[ "$submodules_ready" == "1" ]]; then
     info "Installing agent skills from agent-skills/manifest.toml"
     bash "$DOTFILES_DIR/agent-skills/install.sh" || warn "agent-skills: 競合のため一部未導入"
   else

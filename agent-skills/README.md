@@ -45,6 +45,8 @@ agents = ["opencode"]                     # [agents] のキー
 
 ## 導入
 
+通常はリポジトリ直下の `bootstrap.sh` が submodule の取得と導入まで自動で行う。手動で行う場合:
+
 ```bash
 # 1) submodule を含めて取得（初回）
 git clone --recurse-submodules https://github.com/mame7743/dotfiles.git
@@ -64,10 +66,14 @@ dotfiles/agent-skills/install.sh
 - 既存の通常ファイル・ディレクトリ・異なるリンクは**上書きせず競合として報告**し、
   終了コード 1 を返す。
 - `source` に `SKILL.md` があること、frontmatter `name` が識別名と一致することを検証する。
+- `source` が未取得（private submodule の未認証など）のスキルは**警告してスキップ**し、
+  取得できたスキルは導入する。環境差であり設定ミスではないため、ここでは中断しない。
 - **外部スキルの付属スクリプトは実行しない**（symlink のみ）。
 
-ルートの `scripts/install.sh` / `scripts/install.ps1` はこのスクリプトを呼び出す（submodule 未初期化
-なら警告してスキップ）。OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
+ルートの `scripts/install.sh` / `scripts/install.ps1` はこのスクリプトを呼び出す。`bootstrap.sh` は
+取得時に submodule を**パスごとに**初期化し、1つ失敗しても他を巻き添えにしない。private submodule
+（`mame7743/agent-skills`）は認証が無い環境では取得できず、そのスキルは警告付きでスキップされる。
+OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
 
 ## 配布リポジトリの分け方
 

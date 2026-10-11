@@ -13,6 +13,7 @@
 #   - 既存の通常ファイル/ディレクトリ/異なるリンクは上書きせず、競合として報告する。
 #   - 同じ導入先 (agent × name) を複数スキルが使う設定はエラーにする。
 #   - 検証と計画（フェーズ1）を先に行い、問題があればファイルを変更せず中断する。
+#     ただしソース未取得（非公開 submodule 未認証など）のスキルは警告してスキップする。
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -138,6 +139,7 @@ agent_dir() {
 plan_names=(); plan_srcs=(); plan_targets=()
 seen_targets=$'\n'
 plan_errors=0
+skipped=0; skipped_names=""
 
 i=0
 while [ "$i" -lt "${#sk_names[@]}" ]; do
@@ -154,9 +156,12 @@ while [ "$i" -lt "${#sk_names[@]}" ]; do
     *)  src="$dotfiles_dir/$source_path" ;;
   esac
   if [ ! -d "$src" ]; then
-    err "$name: ソースディレクトリがありません: $src"
-    err "  → submodule を初期化しましたか? (git submodule update --init --recursive)"
-    plan_errors=$((plan_errors + 1)); i=$((i + 1)); continue
+    # 非公開 submodule の未認証など、環境によっては取得できない。
+    # ここは「設定ミス」ではなく環境差なので、警告してスキップする。
+    warn "$name: ソースが未取得のためスキップ: $src"
+    skipped=$((skipped + 1))
+    skipped_names="$skipped_names $name"
+    i=$((i + 1)); continue
   fi
   if [ ! -f "$src/SKILL.md" ]; then
     err "$name: SKILL.md がありません: $src/SKILL.md"
@@ -232,9 +237,13 @@ done
 
 echo
 if [ "$dry_run" = 1 ]; then
-  info "dry-run: 作成予定 ${planned} 件 / 既存リンク ${noop} 件 / 競合 ${conflicts} 件（ファイルは変更していません）"
+  info "dry-run: 作成予定 ${planned} 件 / 既存リンク ${noop} 件 / 競合 ${conflicts} 件 / スキップ ${skipped} 件（ファイルは変更していません）"
 else
-  info "作成 ${created} 件 / 既存リンク ${noop} 件 / 競合 ${conflicts} 件"
+  info "作成 ${created} 件 / 既存リンク ${noop} 件 / 競合 ${conflicts} 件 / スキップ ${skipped} 件"
+fi
+if [ "$skipped" -ne 0 ]; then
+  warn "ソース未取得のためスキップ:${skipped_names}"
+  warn "  → submodule が未初期化の可能性があります: git submodule update --init --recursive"
 fi
 if [ "$conflicts" -ne 0 ]; then
   err "競合が ${conflicts} 件あります。上書きはしていません。"
