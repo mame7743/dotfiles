@@ -10,10 +10,18 @@ My dotfiles.
 curl -fsSL https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.sh | bash
 ```
 
-依存パッケージもまとめて入れたい場合:
+既定で **core プロファイル**（日常のターミナル開発環境。`deps/core.txt` / apt）も導入します。
+
+フル導入（`Brewfile` の全部）にする場合:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.sh | bash -s -- --deps
+```
+
+設定のリンクのみ（アプリを入れない）場合:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.sh | bash -s -- --no-deps
 ```
 
 ### Windows (PowerShell)
@@ -23,11 +31,11 @@ Set-ExecutionPolicy -Scope Process Bypass
 irm https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.ps1 | iex
 ```
 
-依存パッケージもまとめて入れる場合（`-Deps` 付き）:
+既定で依存ソフト（`install-deps.ps1`, winget）も導入します。設定のリンクのみにする場合:
 
 ```powershell
 iwr https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.ps1 -OutFile $env:TEMP\bootstrap.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File $env:TEMP\bootstrap.ps1 -Deps
+powershell -NoProfile -ExecutionPolicy Bypass -File $env:TEMP\bootstrap.ps1 -NoDeps
 ```
 
 ### プラットフォーム別の展開先
@@ -46,7 +54,7 @@ WSLはLinux側のHOME（`$HOME`）へ展開されます。Windows側（PowerShel
 ## 構成
 
 - `scripts/` — インストーラ群。`scripts/install.sh`（symlink作成 + `agent-skills/install.sh` 呼び出し）、`scripts/install-deps.sh` / `scripts/install-deps.ps1`（OS自動検出で依存インストール）、`scripts/bin-tools.py`（`bin/` のビルド型ツール導入、`make bin-tools`）
-- `bootstrap.sh` / `bootstrap.ps1` — リポジトリ取得から上記インストーラ実行までを1コマンドで行う入口（ルート固定）
+- `bootstrap.sh` / `bootstrap.ps1` — リポジトリ取得から上記インストーラ実行までを1コマンドで行う入口（ルート固定）。既定で core 依存も導入（`--no-deps` / `-NoDeps` で無効化）
 - `Brewfile` — macOS依存ソフトウェア一覧（カテゴリ別）
 - `deps/versions.env` — 固定するツールのバージョンと SHA256（唯一の情報源）
 - `deps/core.txt` — 日常のターミナル開発環境（core プロファイル）の唯一の情報源（`make deps-core`）

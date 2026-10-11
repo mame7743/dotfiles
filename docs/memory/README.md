@@ -27,6 +27,7 @@ Proxmox のバックアップ方式は PBS ではなく、既存の restic → S
 | 2026-10-11 | bootstrap-submodules | decided | bootstrap が submodule をパスごとに自動初期化。private 未取得は警告スキップし、公開スキルは導入。ワンライナーで完結 |
 | 2026-10-11 | memory-bank-public-repo | decided | memory-bank を public な独立リポジトリ mame7743/memory-bank へ移管。dotfiles の submodule と manifest を切替、旧リンクを安全に移行 |
 | 2026-10-11 | agent-skills-exclude-private | decided | private 集約 mame7743/agent-skills を一旦 dotfiles から除外。submodule と manifest 項目を削除し、旧リンクを掃除 |
+| 2026-10-11 | bootstrap-installs-core-deps | decided | bootstrap は既定で core 依存も導入（--no-deps で無効化）。Linux の --core 未対応も解消 |
 
 ## 規約
 

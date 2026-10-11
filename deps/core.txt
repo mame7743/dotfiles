@@ -1,6 +1,8 @@
 # deps/core.txt — 最低限必要なアプリ（core プロファイル）の唯一の情報源
 #
-# 用途: 日常のターミナル開発環境を再現するセット（現状 macOS / Homebrew のみ）
+# 用途: 日常のターミナル開発環境を再現するセット
+#   macOS: このファイル（Homebrew formula / cask）
+#   Linux: scripts/install-deps.sh の apt + 固定リリースのセット（このファイルは使わない）
 # 形式: <manager> <name>
 #   manager : brew（formula） / cask（GUIアプリ）
 # コメント(#)と空行は無視される。値に # は使わない。

@@ -3,11 +3,15 @@
 #   Set-ExecutionPolicy -Scope Process Bypass
 #   irm https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.ps1 | iex
 #
+# By default this also installs dependencies (install-deps.ps1, winget).
+#
 # Options:
-#   -Deps   also install dependencies (install-deps.ps1, winget)
+#   -NoDeps   only link dotfiles; install nothing
+#   -Deps     install dependencies (default)
 
 param(
-  [switch]$Deps
+  [switch]$Deps,
+  [switch]$NoDeps
 )
 
 $RepoUrl    = "https://github.com/mame7743/dotfiles.git"
@@ -34,9 +38,13 @@ if (Test-Path (Join-Path $DotfilesDir ".git")) {
 Write-Info "Linking dotfiles"
 & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "scripts\install.ps1")
 
-if ($Deps) {
+if (-not $NoDeps) {
   Write-Info "Installing dependencies"
   & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "scripts\install-deps.ps1")
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[error] 依存ソフトの導入に失敗しました。dotfiles のリンクは完了しています。" -ForegroundColor Red
+    exit 1
+  }
 }
 
 Write-Ok "Done! Restart your shell to apply changes."

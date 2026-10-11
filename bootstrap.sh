@@ -3,16 +3,20 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.sh | bash
 #
+# By default this also installs the core dependency set
+# (scripts/install-deps.sh --core) so a fresh machine is usable right away.
+#
 # Options (pass after `bash -s --`):
-#   --deps       also install dependencies (scripts/install-deps.sh)
-#   --deps-core  install only the minimal applications (scripts/install-deps.sh --core)
+#   --no-deps    only link dotfiles; install nothing
+#   --deps       install the full dependency set (scripts/install-deps.sh)
+#   --deps-core  install only the minimal applications (default)
 set -euo pipefail
 
 REPO_URL="https://github.com/mame7743/dotfiles.git"
 BRANCH="master"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-INSTALL_DEPS=0
-DEPS_ARGS=()
+INSTALL_DEPS=1
+DEPS_ARGS=(--core)
 
 info()  { printf '\033[0;34m[info]\033[0m  %s\n' "$*"; }
 success() { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
@@ -21,8 +25,9 @@ error() { printf '\033[0;31m[error]\033[0m %s\n' "$*" >&2; }
 
 for arg in "$@"; do
   case "$arg" in
-    --deps)      INSTALL_DEPS=1 ;;
+    --deps)      INSTALL_DEPS=1; DEPS_ARGS=() ;;
     --deps-core) INSTALL_DEPS=1; DEPS_ARGS=(--core) ;;
+    --no-deps)   INSTALL_DEPS=0; DEPS_ARGS=() ;;
     *) warn "Unknown argument: $arg" ;;
   esac
 done
@@ -75,7 +80,11 @@ bash "$DOTFILES_DIR/scripts/install.sh"
 
 if [[ "$INSTALL_DEPS" == "1" ]]; then
   info "Installing dependencies"
-  bash "$DOTFILES_DIR/scripts/install-deps.sh" ${DEPS_ARGS[@]+"${DEPS_ARGS[@]}"}
+  if ! bash "$DOTFILES_DIR/scripts/install-deps.sh" ${DEPS_ARGS[@]+"${DEPS_ARGS[@]}"}; then
+    error "依存ソフトの導入に失敗しました。dotfiles のリンクは完了しています。"
+    error "手動で再実行してください: bash $DOTFILES_DIR/scripts/install-deps.sh ${DEPS_ARGS[*]:-}"
+    exit 1
+  fi
 fi
 
 success "Done! Open a new shell to apply changes."

@@ -22,7 +22,9 @@ success() { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
 warn()    { printf '\033[0;33m[warn]\033[0m  %s\n' "$*"; }
 
 # --- 引数 -------------------------------------------------------------------
-#   --core / --profile core : deps/core.txt の最低限セットのみ導入
+#   --core / --profile core : 最小セットのみ導入
+#                             macOS: deps/core.txt（Homebrew）
+#                             Linux: apt + 固定リリースのセット
 #   -n / --dry-run          : 導入せず内容を表示（--core と併用）
 PROFILE=full
 DRY_RUN=0
@@ -253,9 +255,10 @@ elif [[ "$OS" == linux ]]; then
   # -------------------------------------------------------------------------
   # Linux (Debian/Ubuntu)
   # -------------------------------------------------------------------------
+  # Linux には Brewfile が無いため、core プロファイルもこの apt + 固定リリースの
+  # セットを導入する（= Linux における最小セット）。
   if [[ "$PROFILE" == core ]]; then
-    warn "core プロファイルは現在 macOS のみ対応です（Linux は未対応）"
-    exit 1
+    info "Linux: core プロファイル（apt + 固定リリース）を導入"
   fi
   ARCH="$(uname -m)"
   case "$ARCH" in
