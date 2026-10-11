@@ -58,6 +58,7 @@ WSLはLinux側のHOME（`$HOME`）へ展開されます。Windows側（PowerShel
 - `agent-skills/` — エージェントスキルの宣言的導入。`manifest.toml` が「識別名 / dotfilesからの相対ソース / 導入先Agent」を管理し、`install.sh` が選択したスキルだけを対象Agent（現在はOpenCode）の読込先へ symlink する。外部スキルは配布元リポジトリをGit submoduleで参照commitに固定し、自作スキルは `mame7743/agent-skills` で管理。詳細・更新手順は `agent-skills/README.md`
 - `config/opencode/` — opencode のサブエージェント・コマンド・オーケストレーション手順（`AGENTS.md` = マルチAgent構成のメインAgent）
 - `config/powershell/` — Windows PowerShell 7 のプロファイル
+- `config/jjui/config.lua` — jjui の日本語操作メニュー。`m` で開き、選択コミット（`[選択]`）／`@`・全体（`[全体]`）の操作を日本語から選べる。jjui が同ディレクトリへ `types.lua` を生成するためファイル単位で symlink する
 - `docs/dependency-policy.md` — 依存ソフトウェア管理の方針（層ごとの固定／追従）
 - `docs/multi-agent-design.md` — マルチAgent構成の設計書（ルーター / パネル＋ジャッジ / 共有メッセージボックスのハイブリッド）
 - `bin/` — 自作ツール。単一ファイルは `make install` で `~/.local/bin` へ、ビルド型（Go/Python など）は `make bin-tools` で導入

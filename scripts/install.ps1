@@ -103,6 +103,15 @@ foreach ($d in @("agents", "commands", "plugins")) {
   }
 }
 
+# --- jjui (jujutsu TUI の日本語操作メニュー) ---------------------------------
+# ファイル単位でリンクする（jjui が同ディレクトリへ types.lua を生成するため）
+if (Test-Path "$DOTFILES\config\jjui\config.lua") {
+  Write-Info "Linking jjui config"
+  $jjuiDir = "$env:APPDATA\jjui"
+  New-Item -ItemType Directory -Force -Path $jjuiDir | Out-Null
+  New-Link "$DOTFILES\config\jjui\config.lua" "$jjuiDir\config.lua"
+}
+
 # --- LLM skills --------------------------------------------------------------
 # スキルは agent-skills\manifest.toml で宣言し、agent-skills\install.sh が導入する。
 # Git / submodule 操作はここでは行わない。Windows では bash (Git for Windows) が

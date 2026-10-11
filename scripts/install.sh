@@ -83,6 +83,15 @@ if [[ -f "$DOTFILES_DIR/config/mise/config.toml" ]]; then
   link "$DOTFILES_DIR/config/mise/config.toml" "$HOME_DIR/.config/mise/config.toml"
 fi
 
+# --- jjui (jujutsu TUI の日本語操作メニュー) ---------------------------------
+# jjui 自身が types.lua / .luarc.json を同ディレクトリへ生成するため、
+# ディレクトリ全体ではなくファイル単位でリンクする。
+if [[ -f "$DOTFILES_DIR/config/jjui/config.lua" ]]; then
+  mkdir -p "$HOME_DIR/.config/jjui"
+  info "Linking ~/.config/jjui/config.lua"
+  link "$DOTFILES_DIR/config/jjui/config.lua" "$HOME_DIR/.config/jjui/config.lua"
+fi
+
 # --- bin/ (custom tools) -----------------------------------------------------
 # トップレベルの実行ファイルを ~/.local/bin（.zshrc で PATH 済み）へリンクする。
 # ビルドが必要なツールやディレクトリ型は scripts/bin-tools.py（make bin-tools）が担当。
