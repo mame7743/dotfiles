@@ -16,7 +16,8 @@ agent-skills/
 ├── manifest.toml      # 導入するスキルの宣言（唯一の情報源）
 ├── install.sh         # manifest に従って symlink を作成（--dry-run 対応）
 └── repos/             # Git submodule
-    ├── custom/                 # 自作スキル（mame7743/agent-skills, private）
+    ├── memory-bank/            # mame7743/memory-bank（public）
+    ├── custom/                 # 非公開の自作スキル（mame7743/agent-skills）
     ├── mattpocock/             # mattpocock/skills
     ├── caarlos0/               # caarlos0/dotfiles
     └── ui-ux-pro-max/          # nextlevelbuilder/ui-ux-pro-max-skill
@@ -73,6 +74,7 @@ dotfiles/agent-skills/install.sh
 ルートの `scripts/install.sh` / `scripts/install.ps1` はこのスクリプトを呼び出す。`bootstrap.sh` は
 取得時に submodule を**パスごとに**初期化し、1つ失敗しても他を巻き添えにしない。private submodule
 （`mame7743/agent-skills`）は認証が無い環境では取得できず、そのスキルは警告付きでスキップされる。
+`mame7743/memory-bank` は public なので認証なしでも取得・導入できる。
 OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
 
 ## 配布リポジトリの分け方
@@ -82,12 +84,10 @@ OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
 - **外部スキル**: 配布元リポジトリ単位で submodule にする。
   - 独自変更しないものは**配布元を直接参照**する。
   - 独自変更するものは**自分のフォーク（またはパッチrepo）を参照**する。
-- **自作スキル**: 1リポジトリ（`mame7743/agent-skills`）にまとめる。単一作者・上流なしの
-  ため、スキル単位に分割しない。次のいずれかに該当したら、そのスキルだけ独立repoへ切り出す:
-  可視性が違う（公開したい）／ライセンスや所有者が違う／外部に独立配布する／独立に
-  バージョン固定したい。
-- 1つの submodule は repo 単位で1 commit を固定する。自作を1本にまとめる場合、
-  スキルごとの個別 pin はできない（通常は問題にならない）。
+- **自作スキル**: 非公開・同じ可視性・同じ更新単位のものは `mame7743/agent-skills` にまとめる。
+  公開する、外部へ独立配布する、または独立にバージョン固定したいスキルは個別リポジトリにする。
+  `memory-bank` は public な `mame7743/memory-bank` として独立させた。
+- 1つの submodule は repo 単位で1 commit を固定する。
 
 ### 公開フォークと private パッチの使い分け
 
@@ -141,12 +141,19 @@ dotfiles 側の参照を更新**する。**未 commit の変更を破棄する�
 
 固定commitは Git submodule が正本（下記の commit は初回登録時点の参考値）。
 
+### `mame7743/memory-bank`（MIT, public）
+
+- 用途: Git 管理された Markdown による、軽量なプロジェクト記憶。
+- 配布元URL: https://github.com/mame7743/memory-bank
+- 採用スキル: `memory-bank`
+- 更新: このリポジトリへ commit・push 後、dotfiles の gitlink を更新する。
+
 ### 自作スキル: `mame7743/agent-skills`（private）
 
-- 用途: 自分で作成・所有するスキル。
+- 用途: 公開しない自作スキル。
 - 元の配布元URL: なし（自作）。
 - フォークURL: なし（自リポジトリ）。
-- 採用スキル: `memory-bank`, `design-dashboard`, `organize-codebase-structure`
+- 採用スキル: `design-dashboard`, `organize-codebase-structure`
 - 独自変更の概要: 自作のため該当なし。編集はこの repo へ commit・push する。
 
 ### `mattpocock/skills`（MIT）

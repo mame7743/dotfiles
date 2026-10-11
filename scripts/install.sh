@@ -120,6 +120,14 @@ fi
 # スキルは agent-skills/manifest.toml で宣言し、agent-skills/install.sh が
 # 選択したものだけを Agent の読込先へ symlink する。
 # Git / submodule 操作はここでは行わない（README の手順に分離）。
+# memory-bank は private 集約リポジトリから public な独立リポジトリへ移管した。
+# 同一 dotfiles checkout を更新した既存環境だけ、既知の旧リンクを安全に張り替える。
+legacy_memory_bank="$DOTFILES_DIR/agent-skills/repos/custom/skills/memory-bank"
+memory_bank_target="$HOME_DIR/.config/opencode/skills/memory-bank"
+if [[ -L "$memory_bank_target" && "$(readlink "$memory_bank_target")" == "$legacy_memory_bank" ]]; then
+  rm "$memory_bank_target"
+  success "Removed migrated legacy link $memory_bank_target"
+fi
 if [[ -x "$DOTFILES_DIR/agent-skills/install.sh" ]]; then
   # 1つでも submodule が取得済みなら install.sh を実行する
   # （未取得のスキルは install.sh 側が警告してスキップする）。

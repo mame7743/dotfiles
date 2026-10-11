@@ -4,6 +4,7 @@
 - status: decided
 - related: agent-skills/, agent-skills/manifest.toml, agent-skills/install.sh, install.sh, install.ps1, .gitmodules, mame7743/agent-skills, docs/dependency-policy.md
 - supersedes: 2026-10-10-agent-skills-mattpocock-caarlos0
+- partially-superseded-by: 2026-10-11-memory-bank-public-repo（「自作は1 repo に集約」の部分）
 
 ## Context（背景）
 

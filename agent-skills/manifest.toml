@@ -13,12 +13,13 @@
 [agents]
 opencode = "~/.config/opencode/skills"
 
-# --- 自作スキル: mame7743/agent-skills -------------------------------------
+# --- 公開スキル: mame7743/memory-bank -------------------------------------
 [[skills]]
 name   = "memory-bank"
-source = "agent-skills/repos/custom/skills/memory-bank"
+source = "agent-skills/repos/memory-bank"
 agents = ["opencode"]
 
+# --- 自作スキル: mame7743/agent-skills -------------------------------------
 [[skills]]
 name   = "design-dashboard"
 source = "agent-skills/repos/custom/skills/design-dashboard"

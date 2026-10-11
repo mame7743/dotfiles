@@ -10,3 +10,6 @@
 [submodule "agent-skills/repos/ui-ux-pro-max"]
 	path = agent-skills/repos/ui-ux-pro-max
 	url = https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
+[submodule "agent-skills/repos/memory-bank"]
+	path = agent-skills/repos/memory-bank
+	url = https://github.com/mame7743/memory-bank.git

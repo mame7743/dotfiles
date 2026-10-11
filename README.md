@@ -55,7 +55,7 @@ WSLはLinux側のHOME（`$HOME`）へ展開されます。Windows側（PowerShel
 - `config/wezterm/wezterm.lua` — 端末・ペイン分割（WezTerm）の共通設定。標準キーバインドを維持し、Windows のみ既定シェルを PowerShell 7 にする
 - `deps/vscode-extensions.txt` — VS Code拡張機能一覧（`scripts/install-deps.sh` が自動導入）
 - `deps/python/requirements-visualization.txt` — PyVista系ライブラリの入力（`.lock` が実際に導入される固定版）
-- `agent-skills/` — エージェントスキルの宣言的導入。`manifest.toml` が「識別名 / dotfilesからの相対ソース / 導入先Agent」を管理し、`install.sh` が選択したスキルだけを対象Agent（現在はOpenCode）の読込先へ symlink する。外部スキルは配布元リポジトリをGit submoduleで参照commitに固定し、自作スキルは `mame7743/agent-skills` で管理。詳細・更新手順は `agent-skills/README.md`
+- `agent-skills/` — エージェントスキルの宣言的導入。`manifest.toml` が「識別名 / dotfilesからの相対ソース / 導入先Agent」を管理し、`install.sh` が選択したスキルだけを対象Agent（現在はOpenCode）の読込先へ symlink する。外部スキルは配布元リポジトリをGit submoduleで参照commitに固定し、自作・公開スキルは用途ごとのリポジトリで管理。詳細・更新手順は `agent-skills/README.md`
 - `config/opencode/` — opencode のサブエージェント・コマンド・オーケストレーション手順（`AGENTS.md` = マルチAgent構成のメインAgent）
 - `config/powershell/` — Windows PowerShell 7 のプロファイル
 - `config/jjui/config.lua` — jjui の日本語操作メニュー。`m` で開き、選択コミット（`[選択]`）／`@`・全体（`[全体]`）の操作を日本語から選べる。jjui が同ディレクトリへ `types.lua` を生成するためファイル単位で symlink する
