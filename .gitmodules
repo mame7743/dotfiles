@@ -1,0 +1,12 @@
+[submodule "agent-skills/repos/custom"]
+	path = agent-skills/repos/custom
+	url = https://github.com/mame7743/agent-skills.git
+[submodule "agent-skills/repos/mattpocock"]
+	path = agent-skills/repos/mattpocock
+	url = https://github.com/mame7743/agent-skills-mattpocock.git
+[submodule "agent-skills/repos/caarlos0"]
+	path = agent-skills/repos/caarlos0
+	url = https://github.com/mame7743/agent-skills-caarlos0.git
+[submodule "agent-skills/repos/ui-ux-pro-max"]
+	path = agent-skills/repos/ui-ux-pro-max
+	url = https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git

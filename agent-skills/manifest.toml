@@ -1,0 +1,324 @@
+# agent-skills/manifest.toml — 導入するスキルの宣言 (single source of truth)
+#
+# スキル本体は原文のまま使用する。ここでは「どれを・どこから・どの Agent へ」
+# 導入するかだけを管理する。
+#
+#   name   : スキル識別名。SKILL.md の frontmatter `name` と配置ディレクトリ名に一致させる。
+#   source : dotfiles ルートからの相対パス（その直下に SKILL.md がある）。
+#   agents : 導入先 Agent の一覧（下の [agents] テーブルのキー）。
+#
+# 同じ導入先 (agent × name) を複数スキルへ割り当てると install.sh がエラーにする。
+# 未使用 Agent 向けの定義・処理は追加しない（現在は opencode のみ）。
+
+[agents]
+opencode = "~/.config/opencode/skills"
+
+# --- 自作スキル: mame7743/agent-skills -------------------------------------
+[[skills]]
+name   = "memory-bank"
+source = "agent-skills/repos/custom/skills/memory-bank"
+agents = ["opencode"]
+
+[[skills]]
+name   = "design-dashboard"
+source = "agent-skills/repos/custom/skills/design-dashboard"
+agents = ["opencode"]
+
+[[skills]]
+name   = "organize-codebase-structure"
+source = "agent-skills/repos/custom/skills/organize-codebase-structure"
+agents = ["opencode"]
+
+# --- mattpocock/skills (MIT) -----------------------------------------------
+# 上流の `code-review` は caarlos0 側と名前が衝突するため採用しない。
+[[skills]]
+name   = "ask-matt"
+source = "agent-skills/repos/mattpocock/skills/engineering/ask-matt"
+agents = ["opencode"]
+
+[[skills]]
+name   = "codebase-design"
+source = "agent-skills/repos/mattpocock/skills/engineering/codebase-design"
+agents = ["opencode"]
+
+[[skills]]
+name   = "diagnosing-bugs"
+source = "agent-skills/repos/mattpocock/skills/engineering/diagnosing-bugs"
+agents = ["opencode"]
+
+[[skills]]
+name   = "domain-modeling"
+source = "agent-skills/repos/mattpocock/skills/engineering/domain-modeling"
+agents = ["opencode"]
+
+[[skills]]
+name   = "grill-with-docs"
+source = "agent-skills/repos/mattpocock/skills/engineering/grill-with-docs"
+agents = ["opencode"]
+
+[[skills]]
+name   = "implement"
+source = "agent-skills/repos/mattpocock/skills/engineering/implement"
+agents = ["opencode"]
+
+[[skills]]
+name   = "implement-spec"
+source = "agent-skills/repos/mattpocock/skills/engineering/implement-spec"
+agents = ["opencode"]
+
+[[skills]]
+name   = "improve-codebase-architecture"
+source = "agent-skills/repos/mattpocock/skills/engineering/improve-codebase-architecture"
+agents = ["opencode"]
+
+[[skills]]
+name   = "pr"
+source = "agent-skills/repos/mattpocock/skills/engineering/pr"
+agents = ["opencode"]
+
+[[skills]]
+name   = "prototype"
+source = "agent-skills/repos/mattpocock/skills/engineering/prototype"
+agents = ["opencode"]
+
+[[skills]]
+name   = "research"
+source = "agent-skills/repos/mattpocock/skills/engineering/research"
+agents = ["opencode"]
+
+[[skills]]
+name   = "retro"
+source = "agent-skills/repos/mattpocock/skills/engineering/retro"
+agents = ["opencode"]
+
+[[skills]]
+name   = "setup-matt-pocock-skills"
+source = "agent-skills/repos/mattpocock/skills/engineering/setup-matt-pocock-skills"
+agents = ["opencode"]
+
+[[skills]]
+name   = "tdd"
+source = "agent-skills/repos/mattpocock/skills/engineering/tdd"
+agents = ["opencode"]
+
+[[skills]]
+name   = "to-spec"
+source = "agent-skills/repos/mattpocock/skills/engineering/to-spec"
+agents = ["opencode"]
+
+[[skills]]
+name   = "to-tickets"
+source = "agent-skills/repos/mattpocock/skills/engineering/to-tickets"
+agents = ["opencode"]
+
+[[skills]]
+name   = "triage"
+source = "agent-skills/repos/mattpocock/skills/engineering/triage"
+agents = ["opencode"]
+
+[[skills]]
+name   = "wayfinder"
+source = "agent-skills/repos/mattpocock/skills/engineering/wayfinder"
+agents = ["opencode"]
+
+[[skills]]
+name   = "wizard"
+source = "agent-skills/repos/mattpocock/skills/engineering/wizard"
+agents = ["opencode"]
+
+[[skills]]
+name   = "grill-me"
+source = "agent-skills/repos/mattpocock/skills/productivity/grill-me"
+agents = ["opencode"]
+
+[[skills]]
+name   = "grilling"
+source = "agent-skills/repos/mattpocock/skills/productivity/grilling"
+agents = ["opencode"]
+
+[[skills]]
+name   = "handoff"
+source = "agent-skills/repos/mattpocock/skills/productivity/handoff"
+agents = ["opencode"]
+
+[[skills]]
+name   = "teach"
+source = "agent-skills/repos/mattpocock/skills/productivity/teach"
+agents = ["opencode"]
+
+[[skills]]
+name   = "to-questionnaire"
+source = "agent-skills/repos/mattpocock/skills/productivity/to-questionnaire"
+agents = ["opencode"]
+
+[[skills]]
+name   = "wait-what"
+source = "agent-skills/repos/mattpocock/skills/productivity/wait-what"
+agents = ["opencode"]
+
+[[skills]]
+name   = "writing-for-agents"
+source = "agent-skills/repos/mattpocock/skills/productivity/writing-for-agents"
+agents = ["opencode"]
+
+[[skills]]
+name   = "chief-of-staff"
+source = "agent-skills/repos/mattpocock/skills/in-progress/chief-of-staff"
+agents = ["opencode"]
+
+[[skills]]
+name   = "claude-handoff"
+source = "agent-skills/repos/mattpocock/skills/in-progress/claude-handoff"
+agents = ["opencode"]
+
+[[skills]]
+name   = "loop-me"
+source = "agent-skills/repos/mattpocock/skills/in-progress/loop-me"
+agents = ["opencode"]
+
+[[skills]]
+name   = "setup-ts-deep-modules"
+source = "agent-skills/repos/mattpocock/skills/in-progress/setup-ts-deep-modules"
+agents = ["opencode"]
+
+[[skills]]
+name   = "writing-beats"
+source = "agent-skills/repos/mattpocock/skills/in-progress/writing-beats"
+agents = ["opencode"]
+
+[[skills]]
+name   = "writing-fragments"
+source = "agent-skills/repos/mattpocock/skills/in-progress/writing-fragments"
+agents = ["opencode"]
+
+[[skills]]
+name   = "writing-shape"
+source = "agent-skills/repos/mattpocock/skills/in-progress/writing-shape"
+agents = ["opencode"]
+
+[[skills]]
+name   = "git-guardrails-claude-code"
+source = "agent-skills/repos/mattpocock/skills/misc/git-guardrails-claude-code"
+agents = ["opencode"]
+
+[[skills]]
+name   = "migrate-to-shoehorn"
+source = "agent-skills/repos/mattpocock/skills/misc/migrate-to-shoehorn"
+agents = ["opencode"]
+
+[[skills]]
+name   = "scaffold-exercises"
+source = "agent-skills/repos/mattpocock/skills/misc/scaffold-exercises"
+agents = ["opencode"]
+
+[[skills]]
+name   = "setup-pre-commit"
+source = "agent-skills/repos/mattpocock/skills/misc/setup-pre-commit"
+agents = ["opencode"]
+
+# --- caarlos0/dotfiles (MIT) -----------------------------------------------
+[[skills]]
+name   = "change-impact-auditor"
+source = "agent-skills/repos/caarlos0/skills/change-impact-auditor"
+agents = ["opencode"]
+
+[[skills]]
+name   = "cli-design"
+source = "agent-skills/repos/caarlos0/skills/cli-design"
+agents = ["opencode"]
+
+[[skills]]
+name   = "code-review"
+source = "agent-skills/repos/caarlos0/skills/code-review"
+agents = ["opencode"]
+
+[[skills]]
+name   = "code-simplifier"
+source = "agent-skills/repos/caarlos0/skills/code-simplifier"
+agents = ["opencode"]
+
+[[skills]]
+name   = "dashboard"
+source = "agent-skills/repos/caarlos0/skills/dashboard"
+agents = ["opencode"]
+
+[[skills]]
+name   = "dependabot-merge"
+source = "agent-skills/repos/caarlos0/skills/dependabot-merge"
+agents = ["opencode"]
+
+[[skills]]
+name   = "gh-cli"
+source = "agent-skills/repos/caarlos0/skills/gh-cli"
+agents = ["opencode"]
+
+[[skills]]
+name   = "gh-doc-author"
+source = "agent-skills/repos/caarlos0/skills/gh-doc-author"
+agents = ["opencode"]
+
+[[skills]]
+name   = "go-conventions"
+source = "agent-skills/repos/caarlos0/skills/go-conventions"
+agents = ["opencode"]
+
+[[skills]]
+name   = "go-doc"
+source = "agent-skills/repos/caarlos0/skills/go-doc"
+agents = ["opencode"]
+
+[[skills]]
+name   = "go-performance"
+source = "agent-skills/repos/caarlos0/skills/go-performance"
+agents = ["opencode"]
+
+[[skills]]
+name   = "issue-validator"
+source = "agent-skills/repos/caarlos0/skills/issue-validator"
+agents = ["opencode"]
+
+[[skills]]
+name   = "maintainer-briefing"
+source = "agent-skills/repos/caarlos0/skills/maintainer-briefing"
+agents = ["opencode"]
+
+[[skills]]
+name   = "python-performance"
+source = "agent-skills/repos/caarlos0/skills/python-performance"
+agents = ["opencode"]
+
+[[skills]]
+name   = "runtime-process-debugging"
+source = "agent-skills/repos/caarlos0/skills/runtime-process-debugging"
+agents = ["opencode"]
+
+[[skills]]
+name   = "rust-performance"
+source = "agent-skills/repos/caarlos0/skills/rust-performance"
+agents = ["opencode"]
+
+[[skills]]
+name   = "rust-specialist"
+source = "agent-skills/repos/caarlos0/skills/rust-specialist"
+agents = ["opencode"]
+
+[[skills]]
+name   = "tui-design"
+source = "agent-skills/repos/caarlos0/skills/tui-design"
+agents = ["opencode"]
+
+[[skills]]
+name   = "typescript-performance"
+source = "agent-skills/repos/caarlos0/skills/typescript-performance"
+agents = ["opencode"]
+
+[[skills]]
+name   = "writing-tests"
+source = "agent-skills/repos/caarlos0/skills/writing-tests"
+agents = ["opencode"]
+
+# --- nextlevelbuilder/ui-ux-pro-max-skill (MIT) ----------------------------
+[[skills]]
+name   = "ui-ux-pro-max"
+source = "agent-skills/repos/ui-ux-pro-max/.claude/skills/ui-ux-pro-max"
+agents = ["opencode"]
