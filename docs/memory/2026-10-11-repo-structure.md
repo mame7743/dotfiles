@@ -53,6 +53,19 @@
 - `install.sh` 再実行で旧 `~/bin` リンクを削除し `~/.local/bin` へ移行、`~/bin` は空になり削除。冪等。
 - `bash -n`（install / install-deps / check / update / bootstrap）OK、`--core --dry-run` OK。
 
+## 環境反映（macOS 実機）
+
+- `make deps-core` を実行。jjui / zsh / WezTerm(cask) / opencode を導入、mise の4ランタイム
+  （node/python/go/ruby）は導入済みを確認。
+- opencode の重複を解消。既存の `opencode-v2`（anomalyco/tap）と homebrew-core の
+  `opencode` がバイナリ競合したため、**homebrew-core の `opencode` に統一**。
+  `opencode-v2` を削除し `anomalyco/tap` を untap（`opencode --version` = 2.0.25）。
+  Windows の winget `SST.opencode` は別系統のため未整合（要確認）。
+- `deps/update.sh` のバグを修正。`uv pip compile` は出力先が既存だと版を据え置くため、
+  Python ロックが更新されなかった。`--upgrade` を付与し、`deps/python/requirements-visualization.lock`
+  を再生成（charset-normalizer / cyclopts / fonttools / platformdirs / rich-rst / vtk が更新）。
+  `make deps-check` が全 OK に。
+
 ## Open Questions（未解決の問い）
 
 - `agent-skills` の buckets 構成（自作スキルは flat のまま。mattpocock は engineering/ 等で分類）。

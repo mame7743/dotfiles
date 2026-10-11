@@ -93,7 +93,7 @@ ok "deps/versions.env を更新"
 # --- Python ロックの再生成 ---------------------------------------------------
 if command -v uv >/dev/null 2>&1; then
   info "deps/python/requirements-visualization.lock を再生成中…"
-  uv pip compile "$PY_IN" -o "$PY_LOCK" --quiet --no-header
+  uv pip compile --upgrade "$PY_IN" -o "$PY_LOCK" --quiet --no-header
   ok "Python ロックを更新"
 else
   warn "uv が見つかりません — Python ロックは未更新"
