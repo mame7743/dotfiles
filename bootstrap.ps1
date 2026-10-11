@@ -32,11 +32,11 @@ if (Test-Path (Join-Path $DotfilesDir ".git")) {
 }
 
 Write-Info "Linking dotfiles"
-& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "install.ps1")
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "scripts\install.ps1")
 
 if ($Deps) {
   Write-Info "Installing dependencies"
-  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "install-deps.ps1")
+  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $DotfilesDir "scripts\install-deps.ps1")
 }
 
 Write-Ok "Done! Restart your shell to apply changes."

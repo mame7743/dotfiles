@@ -2,13 +2,13 @@
 # install-deps.sh — install dotfiles dependencies across platforms
 #   macOS   : Homebrew bundle (Brewfile) + mise (language runtimes)
 #   Linux   : apt (Debian/Ubuntu) + pinned GitHub releases + mise
-#   Windows : run install-deps.ps1 instead (native PowerShell / winget)
+#   Windows : run scripts/install-deps.ps1 instead (native PowerShell / winget)
 #
 # 固定バージョンは deps/versions.env、ランタイムは config/mise/config.toml が情報源。
 # 方針は docs/dependency-policy.md を参照。
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL_BIN="$HOME/.local/bin"
 LOCAL_SHARE="$HOME/.local/share"
 VIZ_VENV="$HOME/.local/venvs/visualization"
@@ -20,6 +20,30 @@ source "$DOTFILES_DIR/deps/versions.env"
 info()    { printf '\033[0;34m[info]\033[0m  %s\n' "$*"; }
 success() { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
 warn()    { printf '\033[0;33m[warn]\033[0m  %s\n' "$*"; }
+
+# --- 引数 -------------------------------------------------------------------
+#   --core / --profile core : deps/core.txt の最低限セットのみ導入
+#   -n / --dry-run          : 導入せず内容を表示（--core と併用）
+PROFILE=full
+DRY_RUN=0
+usage() { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; }
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --core)       PROFILE=core ;;
+    --profile)    PROFILE="${2:?--profile には値が必要です}"; shift ;;
+    --profile=*)  PROFILE="${1#*=}" ;;
+    -n|--dry-run) DRY_RUN=1 ;;
+    -h|--help)    usage; exit 0 ;;
+    *) warn "不明な引数: $1" ;;
+  esac
+  shift
+done
+
+if [[ "$DRY_RUN" == 1 && "$PROFILE" != core ]]; then
+  warn "--dry-run は --core（core プロファイル）と併用してください"
+  exit 2
+fi
 
 sha256_of() {
   if command -v sha256sum >/dev/null 2>&1; then
@@ -39,11 +63,30 @@ verify_sha256() { # $1=file $2=expected
   fi
 }
 
+# deps/core.txt から Brewfile を生成する（core プロファイル）
+# 形式: <manager> <name>  (manager: brew | cask)
+core_brewfile() { # $1=出力先
+  local out="$1" line manager name
+  : > "$out"
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"                 # 行末コメントを除去
+    line="$(printf '%s' "$line" | xargs)"
+    [[ -z "$line" ]] && continue
+    manager="${line%% *}"
+    name="${line#* }"
+    case "$manager" in
+      brew) printf 'brew "%s"\n' "$name" >> "$out" ;;
+      cask) printf 'cask "%s"\n' "$name" >> "$out" ;;
+      *)    warn "deps/core.txt: 未知の manager: $line" ;;
+    esac
+  done < "$DOTFILES_DIR/deps/core.txt"
+}
+
 case "$(uname -s)" in
   Darwin) OS=macos ;;
   Linux)  OS=linux ;;
   MINGW*|MSYS*|CYGWIN*)
-    warn "Git Bash / Cygwin が検出されました。ネイティブWindowsでは install-deps.ps1 を使ってください。"
+    warn "Git Bash / Cygwin が検出されました。ネイティブWindowsでは scripts/install-deps.ps1 を使ってください。"
     exit 0 ;;
   *)
     warn "未対応OS: $(uname -s)"
@@ -123,6 +166,13 @@ install_ghq() {
   success "ghq ${GHQ_VERSION} (go install)"
 }
 
+# jj 用 TUI（jjui）。macOS は Homebrew、Linux は go install（固定版）
+install_jjui() {
+  command -v jjui >/dev/null 2>&1 && { success "jjui (installed)"; return; }
+  go install "github.com/idursun/jjui/cmd/jjui@${JJUI_VERSION}"
+  success "jjui ${JJUI_VERSION} (go install)"
+}
+
 # Linux には mise が無いので公式インストーラで導入（macOS は Homebrew）
 install_mise() {
   if command -v mise >/dev/null 2>&1; then success "mise (installed)"; return; fi
@@ -143,7 +193,7 @@ install_mise_runtimes() {
   success "言語ランタイム (mise)"
 }
 
-# VS Code 拡張機能 (vscode-extensions.txt)
+# VS Code 拡張機能 (deps/vscode-extensions.txt)
 install_vscode_extensions() {
   command -v code >/dev/null 2>&1 || { warn "VS Code の code CLI が見つかりません — 拡張機能はスキップ"; return; }
   local ext
@@ -155,15 +205,15 @@ install_vscode_extensions() {
       info "code --install-extension $ext"
       code --install-extension "$ext" || warn "$ext のインストールに失敗しました"
     fi
-  done < "$DOTFILES_DIR/vscode-extensions.txt"
+  done < "$DOTFILES_DIR/deps/vscode-extensions.txt"
 }
 
 # PyVista 系ライブラリ
-#   入力は python/requirements-visualization.txt（人手）、
+#   入力は deps/python/requirements-visualization.txt（人手）、
 #   実際に導入するのは固定済みの .lock（make deps-update で再生成）
 install_visualization() {
   command -v uv >/dev/null 2>&1 || { warn "uv が見つかりません — Python visualization はスキップ"; return; }
-  local lock="$DOTFILES_DIR/python/requirements-visualization.lock"
+  local lock="$DOTFILES_DIR/deps/python/requirements-visualization.lock"
   [[ -f "$lock" ]] || { warn "requirements-visualization.lock がありません（make deps-update）"; return; }
   if [[ ! -x "$VIZ_VENV/bin/python" ]]; then
     info "Creating venv: $VIZ_VENV"
@@ -181,13 +231,32 @@ if [[ "$OS" == macos ]]; then
   # -------------------------------------------------------------------------
   # macOS
   # -------------------------------------------------------------------------
-  info "macOS detected — installing via Homebrew bundle"
-  brew bundle --file="$DOTFILES_DIR/Brewfile"
-  success "Dependencies installed (Homebrew)"
+  if [[ "$PROFILE" == core ]]; then
+    if [[ "$DRY_RUN" == 1 ]]; then
+      info "dry-run: deps/core.txt から生成する Brewfile は次のとおり"
+      core_brewfile /dev/stdout
+      success "dry-run: 実際の導入は行っていません"
+    else
+      info "macOS: core プロファイル（deps/core.txt）を Homebrew で導入"
+      core_tmp="$(mktemp)"
+      core_brewfile "$core_tmp"
+      brew bundle --file="$core_tmp"
+      rm -f "$core_tmp"
+      success "Core dependencies installed (Homebrew)"
+    fi
+  else
+    info "macOS detected — installing via Homebrew bundle"
+    brew bundle --file="$DOTFILES_DIR/Brewfile"
+    success "Dependencies installed (Homebrew)"
+  fi
 elif [[ "$OS" == linux ]]; then
   # -------------------------------------------------------------------------
   # Linux (Debian/Ubuntu)
   # -------------------------------------------------------------------------
+  if [[ "$PROFILE" == core ]]; then
+    warn "core プロファイルは現在 macOS のみ対応です（Linux は未対応）"
+    exit 1
+  fi
   ARCH="$(uname -m)"
   case "$ARCH" in
     x86_64)          LAZYGIT_ARCH=x86_64; LUALS_ARCH=x64 ;;
@@ -198,7 +267,7 @@ elif [[ "$OS" == linux ]]; then
   info "Debian/Ubuntu detected — installing via apt"
   sudo apt-get update -y
   sudo apt-get install -y \
-    bat curl fd-find fzf git golang-go ripgrep tmux zlib1g-dev \
+    bat curl fd-find fzf git golang-go ripgrep zlib1g-dev \
     ca-certificates unzip build-essential
 
   mkdir -p "$LOCAL_BIN" "$LOCAL_SHARE"
@@ -208,6 +277,7 @@ elif [[ "$OS" == linux ]]; then
   install_lazygit
   install_luals
   install_ghq
+  install_jjui
   install_mise
 
   success "Dependencies installed (Linux/apt)"
@@ -216,6 +286,18 @@ fi
 # ===========================================================================
 # 共通
 # ===========================================================================
+# core プロファイルは最小セットのみ（VS Code 拡張・可視化は対象外）。
+# 言語ランタイムは core でも導入し、日常環境を再現できるようにする。
+if [[ "$PROFILE" == core ]]; then
+  if [[ "$DRY_RUN" == 1 ]]; then
+    success "dry-run: core プロファイルの内容を表示しました（変更なし）"
+  else
+    install_mise_runtimes
+    success "core プロファイルの導入が完了しました"
+  fi
+  exit 0
+fi
+
 install_mise_runtimes
 install_vscode_extensions
 install_visualization

@@ -16,10 +16,3 @@
 # Python
 __pycache__/
 *.pyc
-
-# LLM skills — runtime data (never commit)
-skills/*/db/*.db
-skills/*/db/*.db-shm
-skills/*/db/*.db-wal
-skills/*/db/config.yaml
-skills/*/run/

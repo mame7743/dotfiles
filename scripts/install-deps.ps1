@@ -1,12 +1,15 @@
 # install-deps.ps1 — Windows dependencies via winget
-# Usage: powershell -ExecutionPolicy Bypass -File install-deps.ps1
+# Usage: powershell -ExecutionPolicy Bypass -File scripts\install-deps.ps1
 # 構成は Brewfile に対応。winget に無いツールは最後の post-install で導入する。
 
 $ErrorActionPreference = "Stop"
 
+# スクリプトは scripts/ にあり、リポジトリ直下の deps/ 等を参照する
+$DOTFILES = Split-Path -Parent $PSScriptRoot
+
 # 固定バージョンの唯一の情報源（deps/versions.env を読み取る）
 $versions = @{}
-Get-Content "$PSScriptRoot\deps\versions.env" | ForEach-Object {
+Get-Content "$DOTFILES\deps\versions.env" | ForEach-Object {
   if ($_ -match '^\s*([A-Z0-9_]+)="([^"]*)"') { $versions[$Matches[1]] = $Matches[2] }
 }
 
@@ -18,7 +21,8 @@ if (-not $winget) {
 
 # ---------------------------------------------------------------------------
 # winget パッケージ一覧
-# ※ zsh / tmux / gdb / direnv は winget に無いため WSL か MSYS2 で導入すること
+# ※ zsh / gdb / direnv は winget に無いため WSL か MSYS2 で導入すること。
+#    既定シェルは PowerShell 7 (pwsh) とし、端末は WezTerm を使う。
 # ---------------------------------------------------------------------------
 $packages = @(
   # 基本
@@ -66,7 +70,16 @@ $packages = @(
   "Neovim.Neovim",
   "vim.vim",
   "JesseDuffield.lazygit",
-  "Sumneko.LuaLanguageServer"
+  "Sumneko.LuaLanguageServer",
+  # 端末・シェル（Windows ネイティブ）
+  "Microsoft.PowerShell",
+  "wez.wezterm",
+  # リポジトリ・AI（core 相当）
+  "jj-vcs.jj",
+  "IbrahimDursun.jjui",
+  "x-motemen.ghq",
+  "SST.opencode",
+  "Herdr.Herdr.Preview"
 )
 
 foreach ($pkg in $packages) {
@@ -78,11 +91,11 @@ foreach ($pkg in $packages) {
 }
 
 # ---------------------------------------------------------------------------
-# post-install: VS Code 拡張機能 (vscode-extensions.txt)
+# post-install: VS Code 拡張機能 (deps/vscode-extensions.txt)
 # ---------------------------------------------------------------------------
 $code = Get-Command code -ErrorAction SilentlyContinue
 if ($code) {
-  $extensions = Get-Content "$PSScriptRoot\vscode-extensions.txt" |
+  $extensions = Get-Content "$DOTFILES\deps\vscode-extensions.txt" |
     Where-Object { $_ -and -not $_.StartsWith("#") }
   $installed = @(& code --list-extensions)
   foreach ($ext in $extensions) {
@@ -106,13 +119,13 @@ if ($uv) {
   & uv tool install jupyterlab
   & uv tool install pre-commit
 
-  # PyVista 系ライブラリ (python/requirements-visualization.lock)
+  # PyVista 系ライブラリ (deps/python/requirements-visualization.lock)
   $venv = Join-Path $env:USERPROFILE ".local\venvs\visualization"
   if (-not (Test-Path "$venv\Scripts\python.exe")) {
     Write-Host "[info]  Creating venv: $venv" -ForegroundColor Blue
     & uv venv $venv
   }
-  & uv pip install --python "$venv\Scripts\python.exe" -r "$PSScriptRoot\python\requirements-visualization.lock"
+  & uv pip install --python "$venv\Scripts\python.exe" -r "$DOTFILES\deps\python\requirements-visualization.lock"
   Write-Host "[ok]    PyVista 系ライブラリ -> $venv" -ForegroundColor Green
 } else {
   Write-Host "[warn]  uv が見つかりません — Python visualization はスキップ" -ForegroundColor Yellow

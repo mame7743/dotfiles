@@ -1,12 +1,12 @@
 # install.ps1 — create symlinks for all dotfiles (Windows / PowerShell)
 # Usage (Run as Administrator once, or enable Developer Mode for symlinks):
-#   powershell -ExecutionPolicy Bypass -File install.ps1
+#   powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 
 param(
   [switch]$DryRun
 )
 
-$DOTFILES   = Split-Path -Parent $MyInvocation.MyCommand.Path
+$DOTFILES   = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $PROFILE_DIR = Split-Path $PROFILE
 $HOME_DIR   = $env:USERPROFILE
 
@@ -45,7 +45,7 @@ function New-Link {
 # --- PowerShell profile ------------------------------------------------------
 Write-Info "Linking PowerShell profile"
 New-Item -ItemType Directory -Force -Path $PROFILE_DIR | Out-Null
-New-Link "$DOTFILES\Microsoft.PowerShell_profile.ps1" $PROFILE
+New-Link "$DOTFILES\config\powershell\Microsoft.PowerShell_profile.ps1" $PROFILE
 
 # --- gitconfig ---------------------------------------------------------------
 Write-Info "Linking .gitconfig"
@@ -65,6 +65,14 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
   $nvimDir = "$localAppData\nvim"
   New-Item -ItemType Directory -Force -Path (Split-Path $nvimDir) | Out-Null
   New-Link "$DOTFILES\config\nvim" $nvimDir
+}
+
+# --- WezTerm (terminal / panes) ---------------------------------------------
+if (Test-Path "$DOTFILES\config\wezterm\wezterm.lua") {
+  Write-Info "Linking WezTerm config"
+  $wezDir = "$HOME_DIR\.config\wezterm"
+  New-Item -ItemType Directory -Force -Path (Split-Path $wezDir) | Out-Null
+  New-Link "$DOTFILES\config\wezterm" $wezDir
 }
 
 # --- opencode global config --------------------------------------------------
@@ -96,24 +104,22 @@ foreach ($d in @("agents", "commands", "plugins")) {
 }
 
 # --- LLM skills --------------------------------------------------------------
-# Each skill in $DOTFILES\skills\<name> is linked into every agent's skills
-# directory (opencode / claude / codex / ~/.agents).
-$SKILL_DIRS = @(
-  "$HOME_DIR\.config\opencode\skills",
-  "$HOME_DIR\.claude\skills",
-  "$HOME_DIR\.codex\skills",
-  "$HOME_DIR\.agents\skills"
-)
-if (Test-Path "$DOTFILES\skills") {
-  Write-Info "Linking LLM skills"
-  foreach ($dir in $SKILL_DIRS) {
-    New-Item -ItemType Directory -Force -Path $dir | Out-Null
-  }
-  Get-ChildItem "$DOTFILES\skills" -Directory | ForEach-Object {
-    $name = $_.Name
-    foreach ($dir in $SKILL_DIRS) {
-      New-Link $_.FullName "$dir\$name"
+# スキルは agent-skills\manifest.toml で宣言し、agent-skills\install.sh が導入する。
+# Git / submodule 操作はここでは行わない。Windows では bash (Git for Windows) が
+# ある場合のみ実行する。
+$agentSkillsInstaller = "$DOTFILES\agent-skills\install.sh"
+if (Test-Path $agentSkillsInstaller) {
+  if (Test-Path "$DOTFILES\agent-skills\repos\mattpocock\skills") {
+    $bash = Get-Command bash -ErrorAction SilentlyContinue
+    if ($bash) {
+      Write-Info "Installing agent skills from manifest.toml"
+      & bash ($agentSkillsInstaller -replace '\\', '/')
+      if ($LASTEXITCODE -ne 0) { Write-Warning "agent-skills: 競合のため一部未導入" }
+    } else {
+      Write-Warning "agent-skills: bash が見つからないためスキル導入をスキップ"
     }
+  } else {
+    Write-Warning "agent-skills: submodule 未初期化のためスキル導入をスキップ (git submodule update --init --recursive)"
   }
 }
 

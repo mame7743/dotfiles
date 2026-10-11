@@ -1,6 +1,6 @@
 # mise — 言語ランタイムのグローバル固定（唯一の情報源）
 #
-# 反映: mise install   （install-deps.sh が自動実行する）
+# 反映: mise install   （scripts/install-deps.sh が自動実行する）
 # 確認: mise ls        /  make deps-check
 #
 # 方針: ランタイムは再現性のため固定する。プロジェクト固有の版は

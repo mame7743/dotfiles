@@ -34,31 +34,34 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $env:TEMP\bootstrap.ps1 -Dep
 
 | 項目 | macOS / Linux / WSL | Windows |
 |---|---|---|
-| インストーラ | `install.sh` | `install.ps1` |
+| インストーラ | `scripts/install.sh` | `scripts/install.ps1` |
 | HOME | `$HOME` | `$USERPROFILE` |
-| シェル設定 | `.zshrc` / `.zshenv` | PowerShell profile |
-| 依存 | `install-deps.sh` (brew/apt + mise) | `install-deps.ps1` (winget + mise) |
+| シェル設定 | `.zshrc` / `.zshenv` | `config/powershell/Microsoft.PowerShell_profile.ps1` |
+| 依存 | `scripts/install-deps.sh` (brew/apt + mise) | `scripts/install-deps.ps1` (winget + mise) |
 | symlink | シンボリックリンク | ディレクトリはJunction / ファイルはSymlink→HardLink |
 
 WSLはLinux側のHOME（`$HOME`）へ展開されます。Windows側（PowerShellプロファイル等）へ
-展開したい場合はネイティブPowerShellで `install.ps1` を実行してください。
+展開したい場合はネイティブPowerShellで `scripts/install.ps1` を実行してください。
 
 ## 構成
 
-- `install.sh` — 各ファイルのsymlink作成（`.zshrc`, `.gitconfig`, nvim, bin, LLM skills など）
-- `install-deps.sh` / `install-deps.ps1` — OS自動検出で依存インストール（brew / apt / winget）＋ mise で言語ランタイム
-- `bootstrap.sh` — 上記を1コマンドで実行するエントリポイント
+- `scripts/` — インストーラ群。`scripts/install.sh`（symlink作成 + `agent-skills/install.sh` 呼び出し）、`scripts/install-deps.sh` / `scripts/install-deps.ps1`（OS自動検出で依存インストール）、`scripts/bin-tools.py`（`bin/` のビルド型ツール導入、`make bin-tools`）
+- `bootstrap.sh` / `bootstrap.ps1` — リポジトリ取得から上記インストーラ実行までを1コマンドで行う入口（ルート固定）
 - `Brewfile` — macOS依存ソフトウェア一覧（カテゴリ別）
 - `deps/versions.env` — 固定するツールのバージョンと SHA256（唯一の情報源）
+- `deps/core.txt` — 日常のターミナル開発環境（core プロファイル）の唯一の情報源（`make deps-core`）
 - `deps/check.sh` / `deps/update.sh` — 依存ドリフト検知 / 固定版とロックの更新
 - `config/mise/config.toml` — 言語ランタイム（python/node/go/ruby）のグローバル固定
-- `vscode-extensions.txt` — VS Code拡張機能一覧（`install-deps.sh` が自動導入）
-- `python/requirements-visualization.txt` — PyVista系ライブラリの入力（`.lock` が実際に導入される固定版）
-- `skills/` — LLMスキル（opencode / Claude Code / Codex へ自動展開）。`memory-bank` に加え、Anthropic公式スキル（`docx` / `xlsx` / `pdf` / `skill-creator` / `frontend-design` / `mcp-builder`）を同梱
+- `config/wezterm/wezterm.lua` — 端末・ペイン分割（WezTerm）の共通設定。標準キーバインドを維持し、Windows のみ既定シェルを PowerShell 7 にする
+- `deps/vscode-extensions.txt` — VS Code拡張機能一覧（`scripts/install-deps.sh` が自動導入）
+- `deps/python/requirements-visualization.txt` — PyVista系ライブラリの入力（`.lock` が実際に導入される固定版）
+- `agent-skills/` — エージェントスキルの宣言的導入。`manifest.toml` が「識別名 / dotfilesからの相対ソース / 導入先Agent」を管理し、`install.sh` が選択したスキルだけを対象Agent（現在はOpenCode）の読込先へ symlink する。外部スキルは配布元リポジトリをGit submoduleで参照commitに固定し、自作スキルは `mame7743/agent-skills` で管理。詳細・更新手順は `agent-skills/README.md`
 - `config/opencode/` — opencode のサブエージェント・コマンド・オーケストレーション手順（`AGENTS.md` = マルチAgent構成のメインAgent）
+- `config/powershell/` — Windows PowerShell 7 のプロファイル
 - `docs/dependency-policy.md` — 依存ソフトウェア管理の方針（層ごとの固定／追従）
 - `docs/multi-agent-design.md` — マルチAgent構成の設計書（ルーター / パネル＋ジャッジ / 共有メッセージボックスのハイブリッド）
-- `templates/` — プロジェクト雛形（`.envrc`, memory-bank, `task.json` など）
+- `bin/` — 自作ツール。単一ファイルは `make install` で `~/.local/bin` へ、ビルド型（Go/Python など）は `make bin-tools` で導入
+- `templates/` — プロジェクトにコピーして使う雛形（`envrc.example`, `obsidian-live-sync/`, `task.json`）。dotfiles からは自動展開しない
 
 ## 利用手順
 
@@ -70,6 +73,8 @@ machine固有の設定は `.zshrc.local`（git管理外）に置く。
 ## 依存の更新
 
 ```bash
+make deps-core     # 日常のターミナル開発環境を導入（macOS / deps/core.txt）
+make deps-core-dry # 導入内容の確認（変更なし）
 make deps-check    # 宣言と実インストールの差分を検知
 make deps-update   # 固定版 (deps/versions.env) とロックを最新へ更新
 ```

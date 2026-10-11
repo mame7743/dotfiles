@@ -2,7 +2,7 @@
 # install.sh — create symlinks for all dotfiles
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOME_DIR="$HOME"
 
 # --- Helpers -----------------------------------------------------------------
@@ -28,7 +28,6 @@ SYMLINK_FILES=(
   .gitconfig
   .gitignore_global
   .vimrc
-  .tmux.conf
 )
 
 info "Linking dotfiles into $HOME_DIR"
@@ -41,6 +40,12 @@ mkdir -p "$HOME_DIR/.config"
 
 info "Linking ~/.config/nvim"
 link "$DOTFILES_DIR/config/nvim" "$HOME_DIR/.config/nvim"
+
+# --- WezTerm (terminal / panes) ---------------------------------------------
+if [[ -f "$DOTFILES_DIR/config/wezterm/wezterm.lua" ]]; then
+  info "Linking ~/.config/wezterm"
+  link "$DOTFILES_DIR/config/wezterm" "$HOME_DIR/.config/wezterm"
+fi
 
 # --- opencode global config -------------------------------------------------
 # Individual files/subdirs only (never the whole dir: node_modules, skills
@@ -79,35 +84,41 @@ if [[ -f "$DOTFILES_DIR/config/mise/config.toml" ]]; then
 fi
 
 # --- bin/ (custom tools) -----------------------------------------------------
-info "Linking ~/bin → $DOTFILES_DIR/bin"
-mkdir -p "$HOME_DIR/bin"
+# トップレベルの実行ファイルを ~/.local/bin（.zshrc で PATH 済み）へリンクする。
+# ビルドが必要なツールやディレクトリ型は scripts/bin-tools.py（make bin-tools）が担当。
+LOCAL_BIN="$HOME_DIR/.local/bin"
+info "Linking bin/* → $LOCAL_BIN"
+mkdir -p "$LOCAL_BIN"
 for script in "$DOTFILES_DIR/bin/"*; do
-  [[ -f "$script" ]] || continue
+  [[ -f "$script" ]] || continue          # ディレクトリは bin-tools.py が担当
+  [[ "$(basename "$script")" == README* ]] && continue
   chmod +x "$script"
-  link "$script" "$HOME_DIR/bin/$(basename "$script")"
+  link "$script" "$LOCAL_BIN/$(basename "$script")"
 done
 
-# --- LLM skills --------------------------------------------------------------
-# Each skill in $DOTFILES_DIR/skills/<name> is symlinked into every agent's
-# skills directory (opencode / claude / codex / ~/.agents).
-SKILL_DIRS=(
-  "$HOME_DIR/.config/opencode/skills"
-  "$HOME_DIR/.claude/skills"
-  "$HOME_DIR/.codex/skills"
-  "$HOME_DIR/.agents/skills"
-)
+# 旧 ~/bin（PATH 外だった）へのリンクを掃除して ~/.local/bin へ移行
+if [[ -d "$HOME_DIR/bin" ]]; then
+  for stale in "$HOME_DIR/bin"/*; do
+    [[ -L "$stale" ]] || continue
+    case "$(readlink "$stale")" in
+      "$DOTFILES_DIR"/*) rm "$stale"; success "Removed stale link $stale" ;;
+    esac
+  done
+  rmdir "$HOME_DIR/bin" 2>/dev/null || true
+fi
 
-if [[ -d "$DOTFILES_DIR/skills" ]]; then
-  for dir in "${SKILL_DIRS[@]}"; do
-    mkdir -p "$dir"
-  done
-  for skill in "$DOTFILES_DIR/skills/"*; do
-    [[ -d "$skill" ]] || continue
-    name="$(basename "$skill")"
-    for dir in "${SKILL_DIRS[@]}"; do
-      link "$skill" "$dir/$name"
-    done
-  done
+# --- LLM skills --------------------------------------------------------------
+# スキルは agent-skills/manifest.toml で宣言し、agent-skills/install.sh が
+# 選択したものだけを Agent の読込先へ symlink する。
+# Git / submodule 操作はここでは行わない（README の手順に分離）。
+if [[ -x "$DOTFILES_DIR/agent-skills/install.sh" ]]; then
+  if [[ -d "$DOTFILES_DIR/agent-skills/repos/mattpocock/skills" ]]; then
+    info "Installing agent skills from agent-skills/manifest.toml"
+    bash "$DOTFILES_DIR/agent-skills/install.sh" || warn "agent-skills: 競合のため一部未導入"
+  else
+    warn "agent-skills: submodule 未初期化のためスキル導入をスキップ"
+    warn "  → git submodule update --init --recursive を実行してください"
+  fi
 fi
 
 # --- vim undo directory ------------------------------------------------------

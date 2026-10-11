@@ -4,7 +4,7 @@
 # 使い方: make deps-update
 #   1. GitHub / Go proxy から最新バージョンとチェックサムを取得
 #   2. deps/versions.env を書き換え
-#   3. python/requirements-visualization.lock を再生成
+#   3. deps/python/requirements-visualization.lock を再生成
 #   4. 変更点を git diff で表示（コミットはしない）
 #
 # 秘密値・トークンは扱わない。GitHub API は未認証で呼ぶ（レート制限時は GH_TOKEN を任意で利用）。
@@ -12,8 +12,8 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSIONS_FILE="$DOTFILES_DIR/deps/versions.env"
-PY_IN="$DOTFILES_DIR/python/requirements-visualization.txt"
-PY_LOCK="$DOTFILES_DIR/python/requirements-visualization.lock"
+PY_IN="$DOTFILES_DIR/deps/python/requirements-visualization.txt"
+PY_LOCK="$DOTFILES_DIR/deps/python/requirements-visualization.lock"
 
 info()  { printf '\033[0;34m[info]\033[0m  %s\n' "$*"; }
 ok()    { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
@@ -92,7 +92,7 @@ ok "deps/versions.env を更新"
 
 # --- Python ロックの再生成 ---------------------------------------------------
 if command -v uv >/dev/null 2>&1; then
-  info "python/requirements-visualization.lock を再生成中…"
+  info "deps/python/requirements-visualization.lock を再生成中…"
   uv pip compile "$PY_IN" -o "$PY_LOCK" --quiet --no-header
   ok "Python ロックを更新"
 else
@@ -103,7 +103,7 @@ fi
 echo
 if command -v git >/dev/null 2>&1 && git -C "$DOTFILES_DIR" rev-parse --git-dir >/dev/null 2>&1; then
   info "変更点:"
-  git -C "$DOTFILES_DIR" --no-pager diff --stat -- deps/versions.env python/requirements-visualization.lock || true
+  git -C "$DOTFILES_DIR" --no-pager diff --stat -- deps/versions.env deps/python/requirements-visualization.lock || true
   echo
   info "内容を確認してコミットしてください（自動コミットはしません）。"
 else

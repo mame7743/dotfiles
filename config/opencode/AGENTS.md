@@ -97,5 +97,5 @@ Agent を増やすこと自体を目的としない。まず単独で処理で�
 - `plugins/<name>.ts` — 外部APIを呼ぶカスタムツール。
 
 グローバル設定は `~/.config/opencode/` から `config/opencode/` へ symlink される
-（`install.sh`）。V2 の推奨ディレクトリ名は複数形（`agents/` `commands/`
+（`scripts/install.sh`）。V2 の推奨ディレクトリ名は複数形（`agents/` `commands/`
 `plugins/`）。

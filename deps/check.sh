@@ -14,8 +14,8 @@ set -uo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSIONS_FILE="$DOTFILES_DIR/deps/versions.env"
 MISE_CONFIG="$DOTFILES_DIR/config/mise/config.toml"
-PY_IN="$DOTFILES_DIR/python/requirements-visualization.txt"
-PY_LOCK="$DOTFILES_DIR/python/requirements-visualization.lock"
+PY_IN="$DOTFILES_DIR/deps/python/requirements-visualization.txt"
+PY_LOCK="$DOTFILES_DIR/deps/python/requirements-visualization.lock"
 
 FAIL=0
 ok()   { printf '\033[0;32m[ok]\033[0m    %s\n' "$*"; }
@@ -33,6 +33,7 @@ info "deps/versions.env を検査"
 source "$VERSIONS_FILE"
 REQUIRED_KEYS=(
   LAZYGIT_VERSION LUALS_VERSION GHQ_VERSION GOPLS_VERSION GOLANGCI_LINT_VERSION
+  JJUI_VERSION
   LAZYGIT_LINUX_AMD64_SHA256 LAZYGIT_LINUX_ARM64_SHA256
   LUALS_LINUX_X64_SHA256 LUALS_LINUX_ARM64_SHA256
 )
@@ -89,6 +90,7 @@ case "$(uname -s)" in
     }
     check_cmd_version lazygit "$LAZYGIT_VERSION"
     check_cmd_version ghq "$GHQ_VERSION"
+    check_cmd_version jjui "$JJUI_VERSION"
     check_cmd_version lua-language-server "$LUALS_VERSION"
     ;;
   Darwin)
@@ -109,10 +111,32 @@ case "$(uname -s)" in
     ;;
 esac
 
+# --- 3b. core プロファイル（deps/core.txt） ---------------------------------
+if [[ -f "$DOTFILES_DIR/deps/core.txt" ]] && command -v brew >/dev/null 2>&1; then
+  info "core プロファイル（deps/core.txt）を検査"
+  have_formula="$(brew list --formula --quiet 2>/dev/null || true)"
+  have_cask="$(brew list --cask --quiet 2>/dev/null || true)"
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"
+    line="$(printf '%s' "$line" | xargs)"
+    [[ -z "$line" ]] && continue
+    manager="${line%% *}"; name="${line#* }"
+    case "$manager" in
+      brew)
+        if grep -qx "$name" <<< "$have_formula"; then ok "core: $name"
+        else warn "core: $name 未インストール（make deps-core）"; fi ;;
+      cask)
+        if grep -qx "$name" <<< "$have_cask"; then ok "core: $name"
+        else warn "core: $name 未インストール（make deps-core）"; fi ;;
+      *) warn "deps/core.txt: 未知の manager: $line" ;;
+    esac
+  done < "$DOTFILES_DIR/deps/core.txt"
+fi
+
 # --- 4. Python ロックの同期 --------------------------------------------------
 info "Python ロックを検査"
 if [[ ! -f "$PY_LOCK" ]]; then
-  fail "python/requirements-visualization.lock がありません"
+  fail "deps/python/requirements-visualization.lock がありません"
 elif ! command -v uv >/dev/null 2>&1; then
   skip "uv が見つかりません"
 else

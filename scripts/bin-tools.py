@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-install.py — dotfiles/bin ツールのクロスプラットフォームインストーラー
+bin-tools.py — dotfiles/bin ツールのクロスプラットフォームインストーラー
 依存: 標準ライブラリのみ
 """
 
@@ -15,7 +15,7 @@ from pathlib import Path
 # 定数
 # ---------------------------------------------------------------------------
 
-DOTFILES_DIR = Path(__file__).parent.resolve()
+DOTFILES_DIR = Path(__file__).parent.parent.resolve()
 BIN_DIR      = DOTFILES_DIR / "bin"
 
 def install_dir() -> Path:

@@ -4,17 +4,20 @@
 #   curl -fsSL https://raw.githubusercontent.com/mame7743/dotfiles/master/bootstrap.sh | bash
 #
 # Options (pass after `bash -s --`):
-#   --deps   also install dependencies (install-deps.sh)
+#   --deps       also install dependencies (scripts/install-deps.sh)
+#   --deps-core  install only the minimal applications (scripts/install-deps.sh --core)
 set -euo pipefail
 
 REPO_URL="https://github.com/mame7743/dotfiles.git"
 BRANCH="master"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 INSTALL_DEPS=0
+DEPS_ARGS=()
 
 for arg in "$@"; do
   case "$arg" in
-    --deps) INSTALL_DEPS=1 ;;
+    --deps)      INSTALL_DEPS=1 ;;
+    --deps-core) INSTALL_DEPS=1; DEPS_ARGS=(--core) ;;
     *) warn "Unknown argument: $arg" ;;
   esac
 done
@@ -43,11 +46,11 @@ else
 fi
 
 info "Linking dotfiles"
-bash "$DOTFILES_DIR/install.sh"
+bash "$DOTFILES_DIR/scripts/install.sh"
 
 if [[ "$INSTALL_DEPS" == "1" ]]; then
   info "Installing dependencies"
-  bash "$DOTFILES_DIR/install-deps.sh"
+  bash "$DOTFILES_DIR/scripts/install-deps.sh" ${DEPS_ARGS[@]+"${DEPS_ARGS[@]}"}
 fi
 
 success "Done! Open a new shell to apply changes."
