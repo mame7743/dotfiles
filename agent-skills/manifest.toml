@@ -19,17 +19,6 @@ name   = "memory-bank"
 source = "agent-skills/repos/memory-bank"
 agents = ["opencode"]
 
-# --- 自作スキル: mame7743/agent-skills -------------------------------------
-[[skills]]
-name   = "design-dashboard"
-source = "agent-skills/repos/custom/skills/design-dashboard"
-agents = ["opencode"]
-
-[[skills]]
-name   = "organize-codebase-structure"
-source = "agent-skills/repos/custom/skills/organize-codebase-structure"
-agents = ["opencode"]
-
 # --- mattpocock/skills (MIT) -----------------------------------------------
 # 上流の `code-review` は caarlos0 側と名前が衝突するため採用しない。
 [[skills]]

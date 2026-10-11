@@ -128,6 +128,15 @@ if [[ -L "$memory_bank_target" && "$(readlink "$memory_bank_target")" == "$legac
   rm "$memory_bank_target"
   success "Removed migrated legacy link $memory_bank_target"
 fi
+# private 集約リポジトリ (repos/custom) を dotfiles から外したため、そこを指す
+# 既知のスキルリンクを掃除する（任意の異なるリンクは触らない）。
+for excluded_skill in design-dashboard organize-codebase-structure; do
+  target="$HOME_DIR/.config/opencode/skills/$excluded_skill"
+  if [[ -L "$target" && "$(readlink "$target")" == "$DOTFILES_DIR/agent-skills/repos/custom/"* ]]; then
+    rm "$target"
+    success "Removed link for excluded skill $target"
+  fi
+done
 if [[ -x "$DOTFILES_DIR/agent-skills/install.sh" ]]; then
   # 1つでも submodule が取得済みなら install.sh を実行する
   # （未取得のスキルは install.sh 側が警告してスキップする）。

@@ -17,7 +17,6 @@ agent-skills/
 ├── install.sh         # manifest に従って symlink を作成（--dry-run 対応）
 └── repos/             # Git submodule
     ├── memory-bank/            # mame7743/memory-bank（public）
-    ├── custom/                 # 非公開の自作スキル（mame7743/agent-skills）
     ├── mattpocock/             # mattpocock/skills
     ├── caarlos0/               # caarlos0/dotfiles
     └── ui-ux-pro-max/          # nextlevelbuilder/ui-ux-pro-max-skill
@@ -72,9 +71,9 @@ dotfiles/agent-skills/install.sh
 - **外部スキルの付属スクリプトは実行しない**（symlink のみ）。
 
 ルートの `scripts/install.sh` / `scripts/install.ps1` はこのスクリプトを呼び出す。`bootstrap.sh` は
-取得時に submodule を**パスごとに**初期化し、1つ失敗しても他を巻き添えにしない。private submodule
-（`mame7743/agent-skills`）は認証が無い環境では取得できず、そのスキルは警告付きでスキップされる。
-`mame7743/memory-bank` は public なので認証なしでも取得・導入できる。
+取得時に submodule を**パスごとに**初期化し、1つ失敗しても他を巻き添えにしない。現在の submodule は
+すべて public のため認証なしで取得できる。`design-dashboard` / `organize-codebase-structure` は
+private 集約リポジトリから外したため、現時点では導入しない（下記「一旦除外中のスキル」参照）。
 OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
 
 ## 配布リポジトリの分け方
@@ -84,9 +83,10 @@ OpenCode 以外（`~/.claude/skills` 等）へは現状リンクしない。
 - **外部スキル**: 配布元リポジトリ単位で submodule にする。
   - 独自変更しないものは**配布元を直接参照**する。
   - 独自変更するものは**自分のフォーク（またはパッチrepo）を参照**する。
-- **自作スキル**: 非公開・同じ可視性・同じ更新単位のものは `mame7743/agent-skills` にまとめる。
-  公開する、外部へ独立配布する、または独立にバージョン固定したいスキルは個別リポジトリにする。
-  `memory-bank` は public な `mame7743/memory-bank` として独立させた。
+- **自作スキル**: 公開可能なものは public な個別リポジトリにする（`memory-bank` は
+  `mame7743/memory-bank`）。非公開・同じ可視性・同じ更新単位のものは集約リポジトリ
+  （`mame7743/agent-skills`）にまとめる。集約リポジトリは**現時点では dotfiles に含めない**
+  （「一旦除外中のスキル」参照）。
 - 1つの submodule は repo 単位で1 commit を固定する。
 
 ### 公開フォークと private パッチの使い分け
@@ -148,13 +148,12 @@ dotfiles 側の参照を更新**する。**未 commit の変更を破棄する�
 - 採用スキル: `memory-bank`
 - 更新: このリポジトリへ commit・push 後、dotfiles の gitlink を更新する。
 
-### 自作スキル: `mame7743/agent-skills`（private）
+### 一旦除外中のスキル
 
-- 用途: 公開しない自作スキル。
-- 元の配布元URL: なし（自作）。
-- フォークURL: なし（自リポジトリ）。
-- 採用スキル: `design-dashboard`, `organize-codebase-structure`
-- 独自変更の概要: 自作のため該当なし。編集はこの repo へ commit・push する。
+- `design-dashboard`, `organize-codebase-structure`（旧 `mame7743/agent-skills`, private）
+- 現時点では dotfiles の submodule・manifest に含めない。
+- 復帰させる場合: `mame7743/agent-skills` を submodule として再追加し、`manifest.toml` に
+  `source = "agent-skills/repos/custom/skills/<name>"` の `[[skills]]` を戻す。
 
 ### `mattpocock/skills`（MIT）
 
